@@ -195,7 +195,6 @@
         <section id="tab-faq" class="tab-content pt-8 max-w-4xl mx-auto pb-20"><div class="text-center mb-12"><h2 class="text-4xl font-extrabold mb-4 text-white">Frequently Asked Questions</h2></div><div class="space-y-6"><div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition"><h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">What is Focus Protocol?</h3><p class="text-gray-300 ml-12">Focus Protocol is a Web3 productivity dApp built on the Nimiq network. It solves procrastination by using financial collateral.</p></div></div></section>
     </main>
 
-    <!-- SCRIPT GỌI NIMIQ KEYGUARD THẬT -->
     <script>
         function switchTab(tabId, isCenterTab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active', 'tab-center'));
@@ -211,15 +210,6 @@
         let timerInterval;
         let isFocusing = false;
 
-        // Khởi tạo SDK chính thức của Nimiq khi trang vừa load xong
-        let hubApi = null;
-        window.addEventListener('DOMContentLoaded', () => {
-            if (typeof HubApi !== 'undefined') {
-                hubApi = new HubApi('https://hub.nimiq-testnet.com');
-                console.log("Nimiq SDK is ready to call Keyguard.");
-            }
-        });
-
         async function startFocusSession(btnElement) {
             const task = document.getElementById('taskInput').value;
             const duration = parseInt(document.getElementById('timeSelect').value);
@@ -230,10 +220,13 @@
                 return; 
             }
 
-            if (!hubApi) {
-                alert("Nimiq SDK failed to load. Please turn off AdBlocker and refresh.");
+            // KHỞI TẠO TRỰC TIẾP KHI BẤM NÚT (Loại bỏ hoàn toàn lỗi thời gian load trang)
+            if (typeof HubApi === 'undefined') {
+                alert("Lỗi: Không tìm thấy thư viện Nimiq. Vui lòng F5 tải lại trang web.");
                 return;
             }
+            
+            const hubApi = new HubApi('https://hub.nimiq-testnet.com');
 
             const originalText = btnElement.innerHTML;
             btnElement.innerHTML = "Waiting for Nimiq Keyguard...";
@@ -246,9 +239,7 @@
                 // MÃ HÓA TIN NHẮN (Chuẩn UTF-8 byte array cho Nimiq)
                 const messageBytes = new Uint8Array([...messageToSign].map(c => c.charCodeAt(0)));
 
-                // SỬ DỤNG HÀM signMessage() THAY VÌ checkout()
-                // Hàm này CHẮC CHẮN SẼ BẬT LÊN cửa sổ popup "Sign Message" riêng biệt 
-                // và yêu cầu user chọn ví -> nhập mật khẩu (giống hệt ảnh image_ad0883.png).
+                // BẬT CỬA SỔ KEYGUARD THẬT
                 const signedMessageResult = await hubApi.signMessage({
                     appName: 'Focus Protocol',
                     message: messageBytes
@@ -309,7 +300,7 @@
         function loseSession(reason) {
             clearInterval(timerInterval); 
             isFocusing = false;
-            showResult(reason, "border-red-500 text-red-400");
+            showResult("⚠️ CHEATING DETECTED. Funds liquidated.", "border-red-500 text-red-400");
         }
 
         function showResult(text, colorClasses) {
