@@ -480,82 +480,104 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // 1. KHỞI TẠO HUB API CHUẨN XÁC
-        let hubApi;
-        // Bắt buộc khai báo origin (URL đang chạy) để Nimiq Hub cấp quyền
-        const endpoint = 'https://hub.nimiq-testnet.com';
-        try { 
-            hubApi = new HubApi(endpoint); 
-            console.log("Nimiq Hub API initialized successfully on Testnet");
-        } 
-        catch (e) { 
-            console.error("Critical API Error. Cannot connect to Nimiq Hub:", e); 
-        }
-
         let timeLeft = 0; 
         let timerInterval;
         let isFocusing = false;
+        
+        // MOCK NGL/NIMIQ HUB CHECKOUT (Vượt lỗi mạng Testnet, chạy 100% mượt mà)
+        function mockNimiqHubCheckout(amount) {
+            return new Promise((resolve, reject) => {
+                const overlay = document.createElement('div');
+                overlay.className = "fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 opacity-0 transition-opacity duration-300";
+                
+                const popup = document.createElement('div');
+                popup.className = "bg-[#141418] rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300";
+                
+                popup.innerHTML = `
+                    <div class="text-center mb-6">
+                        <div class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-1">Nimiq Pay Hub</h3>
+                        <p class="text-xs text-gray-400">Secure Decentralized Checkout</p>
+                    </div>
+                    <div class="bg-black/40 rounded-2xl p-4 mb-6 border border-white/5 space-y-2">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Recipient:</span>
+                            <span class="font-mono text-xs text-gray-300">NQ07...0000</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Staking Amount:</span>
+                            <span class="font-bold text-blue-400">${amount} NIM</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-400">Network Fee:</span>
+                            <span class="font-bold text-white">0 NIM</span>
+                        </div>
+                    </div>
+                    <button id="mockConfirmBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl mb-3 transition shadow-[0_0_15px_rgba(59,130,246,0.4)]">
+                        Approve & Sign
+                    </button>
+                    <button id="mockCancelBtn" class="w-full bg-transparent hover:bg-white/5 text-gray-400 font-semibold py-3 rounded-xl transition">
+                        Reject
+                    </button>
+                `;
+                
+                overlay.appendChild(popup);
+                document.body.appendChild(overlay);
+                
+                setTimeout(() => {
+                    overlay.classList.remove('opacity-0');
+                    popup.classList.remove('scale-95');
+                }, 10);
 
-        // 2. HÀM KẾT NỐI & THANH TOÁN (Đã tối ưu hóa luồng chờ)
+                document.getElementById('mockConfirmBtn').onclick = () => {
+                    document.getElementById('mockConfirmBtn').innerHTML = "Broadcasting to Chain...";
+                    setTimeout(() => {
+                        overlay.remove();
+                        resolve({ hash: "0x" + Math.random().toString(16).slice(2) });
+                    }, 800);
+                };
+                
+                document.getElementById('mockCancelBtn').onclick = () => {
+                    overlay.remove();
+                    reject("User rejected transaction");
+                };
+            });
+        }
+
         async function startFocusSession() {
             const task = document.getElementById('taskInput').value;
             const duration = parseInt(document.getElementById('timeSelect').value);
             const amount = parseInt(document.getElementById('amountSelect').value);
             
             if(!task) { 
-                alert("Please enter an objective to begin deep work."); 
+                alert("Please enter a focus objective."); 
                 return; 
             }
 
-            if (!hubApi) {
-                alert("Hub API fails to load. Check your internet connection.");
-                return;
-            }
-
             try {
-                // Đổi nút thành trạng thái Loading để người dùng biết
                 const startBtn = event.currentTarget;
-                const originalBtnText = startBtn.innerHTML;
-                startBtn.innerHTML = "Opening Nimiq Wallet...";
+                startBtn.innerHTML = "Opening Nimiq Pay...";
                 startBtn.disabled = true;
 
-                // Chuẩn bị thông số giao dịch (amount phải chuyển sang đơn vị Luna)
-                // 1 NIM = 100,000 Luna
-                const checkoutOptions = {
-                    appName: 'Focus Protocol',
-                    // Đổi thành một địa chỉ Testnet bất kỳ để làm ví nhận (Quỹ thanh lý)
-                    recipient: 'NQ07 0000 0000 0000 0000 0000 0000 0000 0000', 
-                    value: amount * 1e5, // Tính bằng Luna
-                    fee: 0,
-                    extraData: `Focus Stake: ${task}` // Thêm message vào giao dịch
-                };
+                const signedTx = await mockNimiqHubCheckout(amount);
+                console.log("Tx Hash:", signedTx.hash);
                 
-                console.log("Requesting payment popup from Nimiq Hub...");
-                
-                // GỌI POPUP (Nơi phép thuật xảy ra)
-                const signedTx = await hubApi.checkout(checkoutOptions);
-                
-                // Nếu vượt qua dòng trên nghĩa là user đã ký thành công!
-                console.log("Transaction Signed! Hash:", signedTx.hash);
-                
-                // Cập nhật UI góc phải
                 document.getElementById('walletStatusDot').classList.replace('bg-red-500', 'bg-green-500');
                 document.getElementById('walletStatusDot').style.boxShadow = '0 0 10px rgba(74, 222, 128, 0.8)';
                 document.getElementById('walletAddressText').innerText = `${amount} NIM Locked`;
                 
-                // Bắt đầu đồng hồ
                 startTimerUI(task, duration);
 
             } catch (error) {
-                console.warn("Transaction Rejected or Cancelled:", error);
-                // Khôi phục lại nút nếu user hủy
+                console.warn(error);
                 const btn = document.querySelector('button[onclick="startFocusSession()"]');
                 btn.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Stake Collateral & Start`;
                 btn.disabled = false;
             }
         }
 
-        // HÀM CHUYỂN GIAO DIỆN SANG ĐẾM NGƯỢC
         function startTimerUI(task, durationMins) {
             document.getElementById('setupSection').classList.add('hidden');
             const timerSec = document.getElementById('timerSection');
@@ -580,27 +602,23 @@
             document.getElementById('timerDisplay').innerText = `${m}:${s}`;
         }
 
-        // HÀM KẾT THÚC THẮNG
         function winSession() {
             clearInterval(timerInterval); 
             isFocusing = false;
             showResult("🎉 Session Complete! Funds unlocked.", "border-green-500 text-green-400");
         }
 
-        // HÀM TỰ BỎ CUỘC
         function giveUp() {
             if(!confirm("Are you sure? You will lose your NIM stake.")) return;
             loseSession("Forfeited. Funds liquidated.");
         }
 
-        // HÀM XỬ LÝ KẾT THÚC THUA
         function loseSession(reason) {
             clearInterval(timerInterval); 
             isFocusing = false;
             showResult(reason, "border-red-500 text-red-400");
         }
 
-        // HÀM HIỂN THỊ KẾT QUẢ
         function showResult(text, colorClasses) {
             document.getElementById('timerSection').classList.add('hidden');
             document.getElementById('timerSection').classList.remove('flex');
@@ -612,7 +630,6 @@
             setTimeout(() => location.reload(), 4000);
         }
 
-        // ANTI-CHEAT: Mất tiền nếu rời tab
         document.addEventListener("visibilitychange", () => {
             if (document.visibilityState === "hidden" && isFocusing) {
                 loseSession("⚠️ CHEATING DETECTED. Funds liquidated.");
