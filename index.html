@@ -6,7 +6,7 @@
     <title>Focus Protocol | Web3 Productivity</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- LOAD NIMIQ HUB SDK -->
+    <!-- DÙNG MAINNET CHÍNH THỨC CỦA NIMIQ (Không bị lỗi như Testnet) -->
     <script src="https://hub.nimiq.com/build/hub-api.js"></script>
     
     <script>
@@ -153,7 +153,6 @@
                                 </div>
                             </div>
 
-                            <!-- GỌI HÀM KÝ KEYGUARD CHÍNH THỨC -->
                             <button onclick="startFocusSession(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg py-5 rounded-2xl transition-all mt-6 active:scale-[0.98] shadow-[0_0_30px_rgba(59,130,246,0.4)] flex justify-center items-center gap-3">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                 Stake Collateral & Start
@@ -195,6 +194,7 @@
         <section id="tab-faq" class="tab-content pt-8 max-w-4xl mx-auto pb-20"><div class="text-center mb-12"><h2 class="text-4xl font-extrabold mb-4 text-white">Frequently Asked Questions</h2></div><div class="space-y-6"><div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition"><h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">What is Focus Protocol?</h3><p class="text-gray-300 ml-12">Focus Protocol is a Web3 productivity dApp built on the Nimiq network. It solves procrastination by using financial collateral.</p></div></div></section>
     </main>
 
+    <!-- SCRIPT GỌI NIMIQ KEYGUARD -->
     <script>
         function switchTab(tabId, isCenterTab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active', 'tab-center'));
@@ -220,26 +220,23 @@
                 return; 
             }
 
-            // KHỞI TẠO TRỰC TIẾP KHI BẤM NÚT (Loại bỏ hoàn toàn lỗi thời gian load trang)
             if (typeof HubApi === 'undefined') {
                 alert("Lỗi: Không tìm thấy thư viện Nimiq. Vui lòng F5 tải lại trang web.");
                 return;
             }
             
-            const hubApi = new HubApi('https://hub.nimiq-testnet.com');
+            // KẾT NỐI VÀO MÁY CHỦ MAINNET ĐỂ TRÁNH LỖI TESTNET
+            const hubApi = new HubApi('https://hub.nimiq.com');
 
             const originalText = btnElement.innerHTML;
             btnElement.innerHTML = "Waiting for Nimiq Keyguard...";
             btnElement.disabled = true;
 
             try {
-                // ĐỊNH DẠNG TIN NHẮN GIỐNG HỆT ẢNH MẪU CỦA BẠN
                 const messageToSign = `Sign in to Focus Protocol\nAddress: NQ07 0000 0000 0000\nAmount: ${amount} NIM\nFee: 0 NIM\nValid for 5 minutes. Signing costs nothing and moves no NIM.`;
-                
-                // MÃ HÓA TIN NHẮN (Chuẩn UTF-8 byte array cho Nimiq)
                 const messageBytes = new Uint8Array([...messageToSign].map(c => c.charCodeAt(0)));
 
-                // BẬT CỬA SỔ KEYGUARD THẬT
+                // Bật Popup ký
                 const signedMessageResult = await hubApi.signMessage({
                     appName: 'Focus Protocol',
                     message: messageBytes
@@ -247,12 +244,10 @@
                 
                 console.log("Message signed by user!", signedMessageResult);
 
-                // Cập nhật UI ví đã khóa tiền
                 document.getElementById('walletStatusDot').classList.replace('bg-red-500', 'bg-green-500');
                 document.getElementById('walletStatusDot').style.boxShadow = '0 0 10px rgba(74, 222, 128, 0.8)';
                 document.getElementById('walletAddressText').innerText = `${amount} NIM Locked`;
                 
-                // Chuyển sang màn hình đếm ngược
                 startTimerUI(task, duration);
 
             } catch (error) {
