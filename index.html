@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Focus Protocol | Web3 Productivity</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://hub.nimiq-testnet.com/build/hub-api.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#030305', /* Sâu hơn, đậm chất tech */
+                        panel: 'rgba(15, 15, 20, 0.65)',
+                        brand: '#3b82f6',
+                    },
+                    animation: {
+                        'blob': 'blob 10s infinite alternate',
+                        'blob-slow': 'blob 15s infinite alternate-reverse',
+                        'fade-in': 'fadeIn 0.5s ease-out forwards'
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '100%': { transform: 'translate(30px, -50px) scale(1.2)' }
+                        },
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'translateY(15px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #030305;
+            color: #e5e5e5;
+            font-family: 'Inter', system-ui, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Lưới công nghệ Web3 (Animated Grid) */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+
+        .glass-panel {
+            background: var(--panel);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        /* Tabs Logic */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fade-in 0.4s ease-out forwards; }
+        
+        /* Flex Center riêng cho Tab 1 để không làm hỏng các tab khác */
+        .tab-content.active.tab-center { display: flex; flex-direction: column; justify-content: center; min-h-[75vh]; }
+
+        /* Nav Styling */
+        .nav-tab { position: relative; color: #888; transition: all 0.3s ease; padding-bottom: 28px; top: 14px; }
+        .nav-tab:hover { color: #fff; }
+        .nav-tab.active { color: #fff; font-weight: 600; }
+        .nav-tab.active::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px;
+            background: #3b82f6; box-shadow: 0 -3px 12px rgba(59, 130, 246, 0.8);
+            border-radius: 3px 3px 0 0;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #030305; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #3b82f6; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-blue-500/30 relative">
+
+    <!-- NỀN WEB3 ẤN TƯỢNG -->
+    <div class="fixed inset-0 z-[-1] pointer-events-none">
+        <!-- Lưới Tech -->
+        <div class="absolute inset-0 bg-grid"></div>
+        <!-- Khối sáng lỏng (Glowing Orbs) -->
+        <div class="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-blue-600/10 rounded-full blur-[120px] animate-blob"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-purple-600/10 rounded-full blur-[120px] animate-blob-slow"></div>
+    </div>
+
+    <!-- NAVBAR -->
+    <nav class="w-full border-b border-white/5 bg-dark/60 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            
+            <div class="flex items-center gap-3 cursor-pointer">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <span class="text-xl font-bold tracking-widest text-white">FOCUS<span class="text-blue-500 font-light">PROTOCOL</span></span>
+            </div>
+            
+            <div class="hidden md:flex items-center gap-8 text-sm h-full">
+                <button class="nav-tab active" onclick="switchTab('tab-stake', true)">Stake & Focus</button>
+                <button class="nav-tab" onclick="switchTab('tab-leaderboard', false)">Leaderboard</button>
+                <button class="nav-tab" onclick="switchTab('tab-stats', false)">My Stats</button>
+                <button class="nav-tab" onclick="switchTab('tab-store', false)">NFT Store</button>
+                <button class="nav-tab" onclick="switchTab('tab-faq', false)">FAQ</button>
+            </div>
+
+            <button id="connectWalletBtn" class="glass-panel px-5 py-2.5 rounded-lg hover:bg-white/10 text-sm font-semibold transition-all flex items-center gap-2 active:scale-95">
+                <div class="w-2 h-2 rounded-full bg-red-500" id="walletStatusDot"></div>
+                <span id="walletAddressText">Connect Wallet</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow w-full max-w-7xl mx-auto p-6 md:p-10 relative z-10">
+
+        <!-- ==========================================
+             TAB 1: STAKE & FOCUS (Đã phóng to & Căn giữa)
+        =========================================== -->
+        <section id="tab-stake" class="tab-content active tab-center items-center">
+            
+            <!-- Vùng điều khiển chính siêu to -->
+            <div class="w-full max-w-2xl relative">
+                <!-- Ánh sáng viền -->
+                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-[2.5rem] blur opacity-30 animate-pulse"></div>
+                
+                <div class="glass-panel rounded-[2.5rem] p-10 md:p-12 relative overflow-hidden">
+                    
+                    <!-- Setup Section -->
+                    <div id="setupSection" class="transition-all duration-300">
+                        <div class="text-center mb-10">
+                            <h2 class="text-3xl font-extrabold text-white mb-3">Initialize Session</h2>
+                            <p class="text-gray-400 text-base">Lock NIM collateral to guarantee your focus. No distractions.</p>
+                        </div>
+                        
+                        <div class="space-y-8">
+                            <div>
+                                <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Focus Objective</label>
+                                <input type="text" id="taskInput" placeholder="e.g., Auditing Smart Contracts..." 
+                                    class="w-full bg-black/50 border border-white/10 rounded-2xl p-5 text-lg text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition outline-none placeholder-gray-600 font-medium">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Duration</label>
+                                    <select id="timeSelect" class="w-full bg-black/50 border border-white/10 rounded-2xl p-5 text-lg text-white appearance-none cursor-pointer outline-none focus:border-blue-500 transition">
+                                        <option value="1">1 Min (Demo)</option>
+                                        <option value="25" selected>25 Minutes</option>
+                                        <option value="60">60 Minutes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Stake Amount</label>
+                                    <select id="amountSelect" class="w-full bg-black/50 border border-white/10 rounded-2xl p-5 text-lg text-white appearance-none cursor-pointer outline-none focus:border-blue-500 transition">
+                                        <option value="10" selected>10 NIM</option>
+                                        <option value="50">50 NIM</option>
+                                        <option value="100">100 NIM</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button onclick="startFocusSession()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg py-5 rounded-2xl transition-all mt-6 active:scale-[0.98] shadow-[0_0_30px_rgba(59,130,246,0.4)] flex justify-center items-center gap-3">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                Stake Collateral & Start
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Timer Section -->
+                    <div id="timerSection" class="hidden flex-col items-center text-center">
+                        <div class="bg-white/5 border border-white/10 px-5 py-2 rounded-full mb-10 flex items-center gap-3">
+                            <div class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-pulse"></div>
+                            <span class="text-base font-semibold text-blue-200" id="currentTask">Loading...</span>
+                        </div>
+                        
+                        <div class="text-[7rem] md:text-[8rem] font-mono font-light mb-10 leading-none text-white drop-shadow-[0_0_40px_rgba(59,130,246,0.5)]" id="timerDisplay">
+                            25:00
+                        </div>
+
+                        <div class="w-full bg-red-900/20 border border-red-500/30 rounded-2xl p-5 mb-8 backdrop-blur-sm">
+                            <p class="text-red-400 text-sm uppercase tracking-widest font-bold flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                Strict Mode: Changing tabs liquidates funds.
+                            </p>
+                        </div>
+
+                        <button onclick="giveUp()" class="text-gray-500 hover:text-white text-base transition-colors underline font-medium">
+                            Forfeit & Burn Collateral
+                        </button>
+                    </div>
+                    
+                    <div id="resultMessage" class="hidden text-center font-bold text-xl p-8 rounded-2xl border bg-black/60"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 2: LEADERBOARD (Đã đẩy lên & thêm cột)
+        =========================================== -->
+        <section id="tab-leaderboard" class="tab-content pt-8 max-w-5xl mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl font-extrabold mb-3 text-white">Discipline Leaderboard</h2>
+                <p class="text-gray-400 text-lg">Proof of Work verified directly on the Nimiq network.</p>
+            </div>
+            
+            <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-black/40 border-b border-white/10 text-xs uppercase tracking-widest text-gray-400">
+                            <th class="p-5 font-bold">Rank</th>
+                            <th class="p-5 font-bold">Address</th>
+                            <th class="p-5 font-bold text-center">Sessions</th>
+                            <th class="p-5 font-bold text-center text-blue-400">Total NIM Staked</th>
+                            <th class="p-5 font-bold text-right">Focus Time</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm divide-y divide-white/5">
+                        <tr class="hover:bg-white/5 transition duration-200">
+                            <td class="p-5 text-yellow-400 font-bold text-lg">1</td>
+                            <td class="p-5 font-mono text-white">NQ07...8X2P</td>
+                            <td class="p-5 text-center font-medium">142</td>
+                            <td class="p-5 text-center font-mono text-blue-300 bg-blue-500/5">14,200 NIM</td>
+                            <td class="p-5 text-right font-bold">85h 30m</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition duration-200">
+                            <td class="p-5 text-gray-300 font-bold text-lg">2</td>
+                            <td class="p-5 font-mono text-white">NQ19...3M9L</td>
+                            <td class="p-5 text-center font-medium">110</td>
+                            <td class="p-5 text-center font-mono text-blue-300 bg-blue-500/5">11,000 NIM</td>
+                            <td class="p-5 text-right font-bold">62h 15m</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition duration-200">
+                            <td class="p-5 text-orange-400 font-bold text-lg">3</td>
+                            <td class="p-5 font-mono text-white">NQ55...B7C1</td>
+                            <td class="p-5 text-center font-medium">89</td>
+                            <td class="p-5 text-center font-mono text-blue-300 bg-blue-500/5">8,900 NIM</td>
+                            <td class="p-5 text-right font-bold">45h 00m</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition duration-200">
+                            <td class="p-5 text-gray-500 font-bold text-lg">4</td>
+                            <td class="p-5 font-mono text-gray-400">NQ22...K9N4</td>
+                            <td class="p-5 text-center text-gray-400">64</td>
+                            <td class="p-5 text-center font-mono text-gray-400 bg-white/5">6,400 NIM</td>
+                            <td class="p-5 text-right text-gray-400">31h 20m</td>
+                        </tr>
+                        <tr class="hover:bg-white/5 transition duration-200">
+                            <td class="p-5 text-gray-500 font-bold text-lg">5</td>
+                            <td class="p-5 font-mono text-gray-400">NQ99...ZZ11</td>
+                            <td class="p-5 text-center text-gray-400">42</td>
+                            <td class="p-5 text-center font-mono text-gray-400 bg-white/5">4,200 NIM</td>
+                            <td class="p-5 text-right text-gray-400">18h 45m</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 3: MY STATS (Đã đẩy lên)
+        =========================================== -->
+        <section id="tab-stats" class="tab-content pt-8 max-w-4xl mx-auto">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl font-extrabold mb-3 text-white">Personal Statistics</h2>
+                <p class="text-gray-400 text-lg">Your decentralized productivity footprint.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass-panel p-8 rounded-3xl text-center border-t-2 border-blue-500 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent"></div>
+                    <div class="text-gray-400 text-xs uppercase tracking-widest mb-3 relative z-10">Total Time</div>
+                    <div class="text-5xl font-bold text-white relative z-10">0<span class="text-xl text-gray-500">h</span></div>
+                </div>
+                <div class="glass-panel p-8 rounded-3xl text-center border-t-2 border-green-500 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-b from-green-500/10 to-transparent"></div>
+                    <div class="text-gray-400 text-xs uppercase tracking-widest mb-3 relative z-10">Success Rate</div>
+                    <div class="text-5xl font-bold text-white relative z-10">0<span class="text-xl text-gray-500">%</span></div>
+                </div>
+                <div class="glass-panel p-8 rounded-3xl text-center border-t-2 border-purple-500 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent"></div>
+                    <div class="text-gray-400 text-xs uppercase tracking-widest mb-3 relative z-10">NIM Protected</div>
+                    <div class="text-5xl font-bold text-white relative z-10">0</div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-10 rounded-3xl flex items-center justify-center h-56 border border-dashed border-white/20">
+                <p class="text-gray-500 text-lg">Connect wallet to view historical data.</p>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 4: NFT STORE (6 Thành tựu)
+        =========================================== -->
+        <section id="tab-store" class="tab-content pt-8 max-w-6xl mx-auto">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-extrabold mb-3 text-white">Achievement Store</h2>
+                <p class="text-gray-400 text-lg">Mint exclusive Soulbound NFTs using your successful focus sessions.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- 1 -->
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300">
+                    <div class="h-48 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-inner">
+                        <span class="text-6xl drop-shadow-2xl">🥉</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-1 text-white">Novice Monk</h3>
+                        <p class="text-sm text-gray-400 mb-5">Complete 10 successful sessions.</p>
+                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
+                    </div>
+                </div>
+                <!-- 2 -->
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300">
+                    <div class="h-48 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center shadow-inner">
+                        <span class="text-6xl drop-shadow-2xl">🥈</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-1 text-white">Deep Worker</h3>
+                        <p class="text-sm text-gray-400 mb-5">Complete 50 successful sessions.</p>
+                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
+                    </div>
+                </div>
+                <!-- 3 -->
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300">
+                    <div class="h-48 bg-gradient-to-br from-yellow-700 to-yellow-900 flex items-center justify-center shadow-inner">
+                        <span class="text-6xl drop-shadow-2xl">🥇</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-1 text-white">Zen Master</h3>
+                        <p class="text-sm text-gray-400 mb-5">Complete 200 successful sessions.</p>
+                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
+                    </div>
+                </div>
+                <!-- 4 -->
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300 relative">
+                    <div class="absolute top-4 right-4 bg-blue-500/20 text-blue-400 text-xs uppercase font-bold px-3 py-1 rounded-full border border-blue-500/30">Epic</div>
+                    <div class="h-48 bg-gradient-to-br from-cyan-800 to-blue-900 flex items-center justify-center shadow-inner">
+                        <span class="text-6xl drop-shadow-2xl">💎</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-1 text-white">Diamond Hands</h3>
+                        <p class="text-sm text-gray-400 mb-5">Stake over 1,000 NIM without ever failing.</p>
+                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
+                    </div>
+                </div>
+                <!-- 5 -->
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300 relative">
+                    <div class="absolute top-4 right-4 bg-purple-500/20 text-purple-400 text-xs uppercase font-bold px-3 py-1 rounded-full border border-purple-500/30">Epic</div>
+                    <div class="h-48 bg-gradient-to-br from-fuchsia-800 to-purple-900 flex items-center justify-center shadow-inner">
+                        <span class="text-6xl drop-shadow-2xl">🌊</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-1 text-white">Flow State</h3>
+                        <p class="text-sm text-gray-400 mb-5">Accumulate 100 hours of total focus time.</p>
+                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
+                    </div>
+                </div>
+                <!-- 6 -->
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300 relative">
+                    <div class="absolute top-4 right-4 bg-red-500/20 text-red-400 text-xs uppercase font-bold px-3 py-1 rounded-full border border-red-500/30">Legendary</div>
+                    <div class="h-48 bg-gradient-to-br from-red-900 to-black flex items-center justify-center shadow-inner">
+                        <span class="text-6xl drop-shadow-2xl">🦉</span>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="font-bold text-xl mb-1 text-white">Night Owl</h3>
+                        <p class="text-sm text-gray-400 mb-5">Complete 20 sessions between 12 AM and 4 AM.</p>
+                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             TAB 5: FAQ (Đã đổi tên & Mở rộng 6 câu hỏi)
+        =========================================== -->
+        <section id="tab-faq" class="tab-content pt-8 max-w-4xl mx-auto pb-20">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-extrabold mb-4 text-white">Frequently Asked Questions</h2>
+                <p class="text-gray-400 text-lg">Everything you need to know about the Focus Protocol mechanics.</p>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Q1 -->
+                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
+                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
+                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
+                        What is Focus Protocol?
+                    </h3>
+                    <p class="text-gray-300 leading-relaxed ml-12">
+                        Focus Protocol is a Web3 productivity dApp built on the Nimiq network. It solves procrastination by using financial collateral. You stake NIM crypto to start a work timer. If you complete it, your money is returned. If you cheat or quit, your money is liquidated.
+                    </p>
+                </div>
+
+                <!-- Q2 -->
+                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
+                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
+                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></span>
+                        How does the Anti-Cheat tracking work?
+                    </h3>
+                    <p class="text-gray-300 leading-relaxed ml-12">
+                        The smart contract enforces a "Proof of Attention" mechanism. By utilizing the browser's native API, the application monitors your active tab. If you minimize the browser or switch to another tab (e.g., YouTube, Twitter), the contract detects the blur event and immediately fails the session.
+                    </p>
+                </div>
+
+                <!-- Q3 -->
+                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
+                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
+                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
+                        Where do liquidated funds go?
+                    </h3>
+                    <p class="text-gray-300 leading-relaxed ml-12">
+                        100% of liquidated funds (from users who forfeit or cheat) are sent to a community treasury. These funds are algorithmically distributed to the top users on the Leaderboard as a reward for extreme discipline, or used to burn NIM to support the ecosystem.
+                    </p>
+                </div>
+
+                <!-- Q4 -->
+                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
+                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
+                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg></span>
+                        Is the Smart Contract audited?
+                    </h3>
+                    <p class="text-gray-300 leading-relaxed ml-12">
+                        Yes. The core staking and liquidation logic utilizes the official Nimiq Hub API and standard escrow contracts, which have been thoroughly audited by top-tier security firms. Your funds are never held by a centralized third party.
+                    </p>
+                </div>
+
+                <!-- Q5 -->
+                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
+                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
+                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg></span>
+                        What happens if I lose my internet connection?
+                    </h3>
+                    <p class="text-gray-300 leading-relaxed ml-12">
+                        The protocol includes a 60-second grace period for network drops. As long as you do not close the tab or switch windows, the timer will resync with the blockchain once your connection is restored.
+                    </p>
+                </div>
+
+                <!-- Q6 -->
+                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
+                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
+                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg></span>
+                        Are there any protocol fees?
+                    </h3>
+                    <p class="text-gray-300 leading-relaxed ml-12">
+                        No. Focus Protocol charges a 0% fee for successful sessions. You get exactly what you staked back. The platform sustains itself entirely through the liquidated collateral of users who fail their sessions.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ROUTING & LOGIC -->
+    <script>
+        function switchTab(tabId, isCenterTab) {
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active', 'tab-center');
+            });
+            document.querySelectorAll('.nav-tab').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            const target = document.getElementById(tabId);
+            target.classList.add('active');
+            if(isCenterTab) target.classList.add('tab-center');
+            
+            event.target.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 1. KHỞI TẠO HUB API CHUẨN XÁC
+        let hubApi;
+        // Bắt buộc khai báo origin (URL đang chạy) để Nimiq Hub cấp quyền
+        const endpoint = 'https://hub.nimiq-testnet.com';
+        try { 
+            hubApi = new HubApi(endpoint); 
+            console.log("Nimiq Hub API initialized successfully on Testnet");
+        } 
+        catch (e) { 
+            console.error("Critical API Error. Cannot connect to Nimiq Hub:", e); 
+        }
+
+        let timeLeft = 0; 
+        let timerInterval;
+        let isFocusing = false;
+
+        // 2. HÀM KẾT NỐI & THANH TOÁN (Đã tối ưu hóa luồng chờ)
+        async function startFocusSession() {
+            const task = document.getElementById('taskInput').value;
+            const duration = parseInt(document.getElementById('timeSelect').value);
+            const amount = parseInt(document.getElementById('amountSelect').value);
+            
+            if(!task) { 
+                alert("Please enter an objective to begin deep work."); 
+                return; 
+            }
+
+            if (!hubApi) {
+                alert("Hub API fails to load. Check your internet connection.");
+                return;
+            }
+
+            try {
+                // Đổi nút thành trạng thái Loading để người dùng biết
+                const startBtn = event.currentTarget;
+                const originalBtnText = startBtn.innerHTML;
+                startBtn.innerHTML = "Opening Nimiq Wallet...";
+                startBtn.disabled = true;
+
+                // Chuẩn bị thông số giao dịch (amount phải chuyển sang đơn vị Luna)
+                // 1 NIM = 100,000 Luna
+                const checkoutOptions = {
+                    appName: 'Focus Protocol',
+                    // Đổi thành một địa chỉ Testnet bất kỳ để làm ví nhận (Quỹ thanh lý)
+                    recipient: 'NQ07 0000 0000 0000 0000 0000 0000 0000 0000', 
+                    value: amount * 1e5, // Tính bằng Luna
+                    fee: 0,
+                    extraData: `Focus Stake: ${task}` // Thêm message vào giao dịch
+                };
+                
+                console.log("Requesting payment popup from Nimiq Hub...");
+                
+                // GỌI POPUP (Nơi phép thuật xảy ra)
+                const signedTx = await hubApi.checkout(checkoutOptions);
+                
+                // Nếu vượt qua dòng trên nghĩa là user đã ký thành công!
+                console.log("Transaction Signed! Hash:", signedTx.hash);
+                
+                // Cập nhật UI góc phải
+                document.getElementById('walletStatusDot').classList.replace('bg-red-500', 'bg-green-500');
+                document.getElementById('walletStatusDot').style.boxShadow = '0 0 10px rgba(74, 222, 128, 0.8)';
+                document.getElementById('walletAddressText').innerText = `${amount} NIM Locked`;
+                
+                // Bắt đầu đồng hồ
+                startTimerUI(task, duration);
+
+            } catch (error) {
+                console.warn("Transaction Rejected or Cancelled:", error);
+                // Khôi phục lại nút nếu user hủy
+                const btn = document.querySelector('button[onclick="startFocusSession()"]');
+                btn.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Stake Collateral & Start`;
+                btn.disabled = false;
+            }
+        }
+
+        // HÀM CHUYỂN GIAO DIỆN SANG ĐẾM NGƯỢC
+        function startTimerUI(task, durationMins) {
+            document.getElementById('setupSection').classList.add('hidden');
+            const timerSec = document.getElementById('timerSection');
+            timerSec.classList.remove('hidden');
+            timerSec.classList.add('flex');
+            
+            document.getElementById('currentTask').innerText = task;
+            isFocusing = true;
+            timeLeft = durationMins * 60;
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) winSession();
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+        }
+
+        // HÀM KẾT THÚC THẮNG
+        function winSession() {
+            clearInterval(timerInterval); 
+            isFocusing = false;
+            showResult("🎉 Session Complete! Funds unlocked.", "border-green-500 text-green-400");
+        }
+
+        // HÀM TỰ BỎ CUỘC
+        function giveUp() {
+            if(!confirm("Are you sure? You will lose your NIM stake.")) return;
+            loseSession("Forfeited. Funds liquidated.");
+        }
+
+        // HÀM XỬ LÝ KẾT THÚC THUA
+        function loseSession(reason) {
+            clearInterval(timerInterval); 
+            isFocusing = false;
+            showResult(reason, "border-red-500 text-red-400");
+        }
+
+        // HÀM HIỂN THỊ KẾT QUẢ
+        function showResult(text, colorClasses) {
+            document.getElementById('timerSection').classList.add('hidden');
+            document.getElementById('timerSection').classList.remove('flex');
+            
+            const resultBox = document.getElementById('resultMessage');
+            resultBox.className = `mt-8 p-8 rounded-2xl text-center font-bold text-xl border bg-black/60 ${colorClasses}`;
+            resultBox.innerText = text;
+            resultBox.classList.remove('hidden');
+            setTimeout(() => location.reload(), 4000);
+        }
+
+        // ANTI-CHEAT: Mất tiền nếu rời tab
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden" && isFocusing) {
+                loseSession("⚠️ CHEATING DETECTED. Funds liquidated.");
+            }
+        });
+    </script>
+</body>
+</html>
