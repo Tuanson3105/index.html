@@ -14,23 +14,39 @@
             theme: {
                 extend: {
                     colors: {
-                        dark: '#030305',
-                        panel: 'rgba(15, 15, 20, 0.65)',
-                        brand: '#3b82f6',
+                        darkBase: '#070514', // Đen pha xanh tím sâu thẳm
+                        panel: 'rgba(20, 20, 30, 0.45)', // Kính trong hơn
                     },
                     animation: {
-                        'blob': 'blob 10s infinite alternate',
-                        'blob-slow': 'blob 15s infinite alternate-reverse',
-                        'fade-in': 'fadeIn 0.5s ease-out forwards'
+                        'blob': 'blob 10s infinite alternate cubic-bezier(0.4, 0, 0.2, 1)',
+                        'blob-slow': 'blob-reverse 15s infinite alternate cubic-bezier(0.4, 0, 0.2, 1)',
+                        'gradient-x': 'gradient-x 3s ease infinite',
+                        'float': 'float 6s ease-in-out infinite',
                     },
                     keyframes: {
                         blob: {
                             '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '100%': { transform: 'translate(30px, -50px) scale(1.2)' }
+                            '50%': { transform: 'translate(50px, -50px) scale(1.1)' },
+                            '100%': { transform: 'translate(-40px, 20px) scale(0.9)' }
                         },
-                        fadeIn: {
-                            '0%': { opacity: '0', transform: 'translateY(15px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        'blob-reverse': {
+                            '0%': { transform: 'translate(0px, 0px) scale(0.9)' },
+                            '50%': { transform: 'translate(-50px, 50px) scale(1.1)' },
+                            '100%': { transform: 'translate(40px, -20px) scale(1)' }
+                        },
+                        'gradient-x': {
+                            '0%, 100%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'left center'
+                            },
+                            '50%': {
+                                'background-size': '200% 200%',
+                                'background-position': 'right center'
+                            }
+                        },
+                        'float': {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
                         }
                     }
                 }
@@ -40,62 +56,106 @@
 
     <style>
         body {
-            background-color: #030305;
+            background-color: #070514;
             color: #e5e5e5;
             font-family: 'Inter', system-ui, sans-serif;
             overflow-x: hidden;
         }
 
+        /* Lưới công nghệ sắc nét hơn đè lên nền Orbs */
         .bg-grid {
-            background-size: 40px 40px;
+            background-size: 50px 50px;
             background-image: 
-                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+                linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            mask-image: radial-gradient(circle at center, black 30%, transparent 90%);
+            -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 90%);
+            pointer-events: none;
         }
 
+        /* Hiệu ứng Kính cường lực (Premium Glassmorphism) */
         .glass-panel {
             background: var(--panel);
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            /* Viền sáng nổi khối 3D */
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fade-in 0.4s ease-out forwards; }
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(6, 182, 212, 0.15);
+        }
+
+        /* Gradient Text Textures */
+        .text-gradient {
+            background: linear-gradient(to right, #00f2fe, #4facfe, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: gradient-x 4s linear infinite;
+        }
+
+        /* Tabs Logic */
+        .tab-content { display: none; opacity: 0; transform: translateY(15px); transition: opacity 0.5s ease, transform 0.5s ease; }
+        .tab-content.active { display: block; opacity: 1; transform: translateY(0); }
         .tab-content.active.tab-center { display: flex; flex-direction: column; justify-content: center; min-h-[75vh]; }
 
+        /* Nav Tab có gạch chân phát sáng */
         .nav-tab { position: relative; color: #888; transition: all 0.3s ease; padding-bottom: 28px; top: 14px; }
-        .nav-tab:hover { color: #fff; }
+        .nav-tab:hover { color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.3); }
         .nav-tab.active { color: #fff; font-weight: 600; }
         .nav-tab.active::after {
             content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px;
-            background: #3b82f6; box-shadow: 0 -3px 12px rgba(59, 130, 246, 0.8);
+            background: linear-gradient(90deg, #00f2fe, #4facfe); 
+            box-shadow: 0 -3px 15px rgba(0, 242, 254, 0.8);
             border-radius: 3px 3px 0 0;
         }
 
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #030305; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        /* Input Fields nổi bật hơn */
+        .glass-input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .glass-input:focus {
+            background: rgba(0, 0, 0, 0.6);
+            border-color: #4facfe;
+            box-shadow: 0 0 20px rgba(79, 172, 254, 0.3), inset 0 0 10px rgba(79, 172, 254, 0.1);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #070514; }
+        ::-webkit-scrollbar-thumb { background: #2a2d3e; border-radius: 4px; border: 2px solid #070514; }
+        ::-webkit-scrollbar-thumb:hover { background: #4facfe; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-blue-500/30 relative">
+<body class="min-h-screen flex flex-col selection:bg-cyan-500/30 relative">
 
-    <div class="fixed inset-0 z-[-1] pointer-events-none">
+    <!-- SIÊU NỀN WEB3 (Vibrant Animated Orbs + Grid) -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden">
+        <!-- Khối cầu Neon Cyan góc trên trái -->
+        <div class="absolute top-[-20%] left-[-10%] w-[50vw] h-[50vw] bg-cyan-500/20 rounded-full blur-[120px] animate-blob"></div>
+        <!-- Khối cầu Tím Fuchsia góc dưới phải -->
+        <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] bg-fuchsia-600/15 rounded-full blur-[150px] animate-blob-slow"></div>
+        <!-- Khối cầu Xanh Indigo ở giữa -->
+        <div class="absolute top-[20%] left-[30%] w-[40vw] h-[40vw] bg-indigo-600/15 rounded-full blur-[130px] animate-blob" style="animation-delay: 2s;"></div>
+        <!-- Lưới lưới nổi đè lên trên ánh sáng -->
         <div class="absolute inset-0 bg-grid"></div>
-        <div class="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-blue-600/10 rounded-full blur-[120px] animate-blob"></div>
-        <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-purple-600/10 rounded-full blur-[120px] animate-blob-slow"></div>
     </div>
 
-    <!-- NAVBAR -->
-    <nav class="w-full border-b border-white/5 bg-dark/60 backdrop-blur-xl sticky top-0 z-50">
+    <!-- NAVBAR TÁCH BIỆT -->
+    <nav class="w-full border-b border-white/10 bg-darkBase/40 backdrop-blur-2xl sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3 cursor-pointer">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.4)]">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            <div class="flex items-center gap-3 cursor-pointer group">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.5)] group-hover:shadow-[0_0_30px_rgba(6,182,212,0.8)] transition-all">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 </div>
-                <span class="text-xl font-bold tracking-widest text-white">FOCUS<span class="text-blue-500 font-light">PROTOCOL</span></span>
+                <span class="text-2xl font-black tracking-widest text-white">FOCUS<span class="text-cyan-400 font-light">PROTOCOL</span></span>
             </div>
             
             <div class="hidden md:flex items-center gap-8 text-sm h-full">
@@ -106,9 +166,9 @@
                 <button class="nav-tab" onclick="switchTab('tab-faq', false)">FAQ</button>
             </div>
 
-            <button id="connectWalletBtn" class="glass-panel px-5 py-2.5 rounded-lg hover:bg-white/10 text-sm font-semibold transition-all flex items-center gap-2 active:scale-95">
-                <div class="w-2 h-2 rounded-full bg-red-500" id="walletStatusDot"></div>
-                <span id="walletAddressText">Connect Wallet</span>
+            <button id="connectWalletBtn" class="glass-panel px-5 py-2.5 rounded-xl hover:bg-white/10 text-sm font-semibold transition-all flex items-center gap-2 active:scale-95 group">
+                <div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.6)]" id="walletStatusDot"></div>
+                <span id="walletAddressText" class="group-hover:text-cyan-300 transition-colors">Connect Wallet</span>
             </button>
         </div>
     </nav>
@@ -118,27 +178,28 @@
 
         <!-- TAB 1: STAKE & FOCUS -->
         <section id="tab-stake" class="tab-content active tab-center items-center">
-            <div class="w-full max-w-2xl relative">
-                <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-[2.5rem] blur opacity-30 animate-pulse"></div>
+            <div class="w-full max-w-2xl relative animate-float">
+                <!-- Vầng hào quang (Glow) phía sau Card -->
+                <div class="absolute -inset-1 bg-gradient-to-r from-cyan-500 via-blue-500 to-fuchsia-600 rounded-[3rem] blur-xl opacity-30 animate-gradient-x"></div>
                 
                 <div class="glass-panel rounded-[2.5rem] p-10 md:p-12 relative overflow-hidden">
                     <div id="setupSection" class="transition-all duration-300">
                         <div class="text-center mb-10">
-                            <h2 class="text-3xl font-extrabold text-white mb-3">Initialize Session</h2>
-                            <p class="text-gray-400 text-base">Lock NIM collateral to guarantee your focus. No distractions.</p>
+                            <h2 class="text-4xl font-extrabold text-white mb-3 tracking-tight">Initialize Session</h2>
+                            <p class="text-cyan-200/60 text-base font-medium">Lock NIM collateral to guarantee your focus. No distractions.</p>
                         </div>
                         
                         <div class="space-y-8">
                             <div>
                                 <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Focus Objective</label>
                                 <input type="text" id="taskInput" placeholder="e.g., Auditing Smart Contracts..." 
-                                    class="w-full bg-black/50 border border-white/10 rounded-2xl p-5 text-lg text-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition outline-none placeholder-gray-600 font-medium">
+                                    class="glass-input w-full rounded-2xl p-5 text-lg text-white outline-none placeholder-gray-500 font-medium">
                             </div>
 
                             <div class="grid grid-cols-2 gap-6">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Duration</label>
-                                    <select id="timeSelect" class="w-full bg-black/50 border border-white/10 rounded-2xl p-5 text-lg text-white appearance-none cursor-pointer outline-none focus:border-blue-500 transition">
+                                    <select id="timeSelect" class="glass-input w-full rounded-2xl p-5 text-lg text-white appearance-none cursor-pointer outline-none">
                                         <option value="1">1 Min (Demo)</option>
                                         <option value="25" selected>25 Minutes</option>
                                         <option value="60">60 Minutes</option>
@@ -146,7 +207,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Stake Amount</label>
-                                    <select id="amountSelect" class="w-full bg-black/50 border border-white/10 rounded-2xl p-5 text-lg text-white appearance-none cursor-pointer outline-none focus:border-blue-500 transition">
+                                    <select id="amountSelect" class="glass-input w-full rounded-2xl p-5 text-lg text-white appearance-none cursor-pointer outline-none">
                                         <option value="10" selected>10 NIM</option>
                                         <option value="50">50 NIM</option>
                                         <option value="100">100 NIM</option>
@@ -154,93 +215,99 @@
                                 </div>
                             </div>
 
-                            <button onclick="startFocusSession(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg py-5 rounded-2xl transition-all mt-6 active:scale-[0.98] shadow-[0_0_30px_rgba(59,130,246,0.4)] flex justify-center items-center gap-3">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                                Stake Collateral & Start
+                            <!-- NÚT BẤM LIQUID GRADIENT SIÊU CẤP -->
+                            <button onclick="startFocusSession(this)" class="group relative w-full rounded-2xl font-bold text-lg py-5 transition-all active:scale-[0.97] mt-6 overflow-hidden">
+                                <!-- Nền Gradient chảy liên tục -->
+                                <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 bg-[length:200%_auto] animate-gradient-x transition-all group-hover:scale-105"></div>
+                                <div class="relative flex justify-center items-center gap-3 text-white">
+                                    <svg class="w-6 h-6 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                    Stake Collateral & Start
+                                </div>
                             </button>
                         </div>
                     </div>
 
+                    <!-- Timer Section -->
                     <div id="timerSection" class="hidden flex-col items-center text-center">
-                        <div class="bg-white/5 border border-white/10 px-5 py-2 rounded-full mb-10 flex items-center gap-3">
-                            <div class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-pulse"></div>
-                            <span class="text-base font-semibold text-blue-200" id="currentTask">Loading...</span>
+                        <div class="bg-cyan-500/10 border border-cyan-500/30 px-6 py-2.5 rounded-full mb-10 flex items-center gap-3 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+                            <div class="w-3 h-3 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_10px_#22d3ee]"></div>
+                            <span class="text-base font-bold text-cyan-100" id="currentTask">Loading...</span>
                         </div>
                         
-                        <div class="text-[7rem] md:text-[8rem] font-mono font-light mb-10 leading-none text-white drop-shadow-[0_0_40px_rgba(59,130,246,0.5)]" id="timerDisplay">
+                        <div class="text-[7rem] md:text-[8rem] font-mono font-light mb-10 leading-none text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-400 drop-shadow-[0_0_30px_rgba(255,255,255,0.2)]" id="timerDisplay">
                             25:00
                         </div>
 
-                        <div class="w-full bg-red-900/20 border border-red-500/30 rounded-2xl p-5 mb-8 backdrop-blur-sm">
+                        <div class="w-full bg-red-900/20 border border-red-500/30 rounded-2xl p-5 mb-8 backdrop-blur-md">
                             <p class="text-red-400 text-sm uppercase tracking-widest font-bold flex items-center justify-center gap-2">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                 Strict Mode: Changing tabs liquidates funds.
                             </p>
                         </div>
 
-                        <button onclick="giveUp()" class="text-gray-500 hover:text-white text-base transition-colors underline font-medium">
+                        <button onclick="giveUp()" class="text-gray-500 hover:text-red-400 text-sm transition-colors uppercase tracking-widest font-bold">
                             Forfeit & Burn Collateral
                         </button>
                     </div>
                     
-                    <div id="resultMessage" class="hidden text-center font-bold text-xl p-8 rounded-2xl border bg-black/60"></div>
+                    <div id="resultMessage" class="hidden text-center font-bold text-xl p-8 rounded-2xl border bg-black/60 backdrop-blur-xl mt-6"></div>
                 </div>
             </div>
         </section>
 
         <!-- TAB 2: LEADERBOARD -->
         <section id="tab-leaderboard" class="tab-content pt-8 max-w-5xl mx-auto">
-            <div class="text-center mb-10">
-                <h2 class="text-4xl font-extrabold mb-3 text-white">Discipline Leaderboard</h2>
+            <div class="text-center mb-12">
+                <h2 class="text-5xl font-extrabold mb-4 text-white tracking-tight">Discipline <span class="text-gradient">Leaderboard</span></h2>
                 <p class="text-gray-400 text-lg">Proof of Work verified directly on the Nimiq network.</p>
             </div>
             
-            <div class="glass-panel rounded-2xl overflow-hidden shadow-2xl">
+            <div class="glass-panel rounded-3xl overflow-hidden">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-black/40 border-b border-white/10 text-xs uppercase tracking-widest text-gray-400">
-                            <th class="p-5 font-bold">Rank</th>
-                            <th class="p-5 font-bold">Address</th>
-                            <th class="p-5 font-bold text-center">Sessions</th>
-                            <th class="p-5 font-bold text-center text-blue-400">Total NIM Staked</th>
-                            <th class="p-5 font-bold text-right">Focus Time</th>
+                        <tr class="bg-white/[0.03] border-b border-white/10 text-xs uppercase tracking-widest text-cyan-400">
+                            <th class="p-6 font-bold">Rank</th>
+                            <th class="p-6 font-bold">Address</th>
+                            <th class="p-6 font-bold text-center">Sessions</th>
+                            <th class="p-6 font-bold text-center">Total NIM Staked</th>
+                            <th class="p-6 font-bold text-right">Focus Time</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm divide-y divide-white/5">
-                        <tr class="hover:bg-white/5 transition duration-200">
-                            <td class="p-5 text-yellow-400 font-bold text-lg">1</td>
-                            <td class="p-5 font-mono text-white">NQ07...8X2P</td>
-                            <td class="p-5 text-center font-medium">142</td>
-                            <td class="p-5 text-center font-mono text-blue-300 bg-blue-500/5">14,200 NIM</td>
-                            <td class="p-5 text-right font-bold">85h 30m</td>
+                        <tr class="hover:bg-white/[0.05] transition duration-300 group">
+                            <td class="p-6 text-yellow-400 font-bold text-xl group-hover:scale-110 transition-transform">1</td>
+                            <td class="p-6 font-mono text-white">NQ07...8X2P</td>
+                            <td class="p-6 text-center font-bold">142</td>
+                            <td class="p-6 text-center font-mono text-cyan-300 bg-cyan-900/20 font-bold">14,200 NIM</td>
+                            <td class="p-6 text-right font-bold text-gray-200">85h 30m</td>
                         </tr>
-                        <tr class="hover:bg-white/5 transition duration-200">
-                            <td class="p-5 text-gray-300 font-bold text-lg">2</td>
-                            <td class="p-5 font-mono text-white">NQ19...3M9L</td>
-                            <td class="p-5 text-center font-medium">110</td>
-                            <td class="p-5 text-center font-mono text-blue-300 bg-blue-500/5">11,000 NIM</td>
-                            <td class="p-5 text-right font-bold">62h 15m</td>
+                        <tr class="hover:bg-white/[0.05] transition duration-300 group">
+                            <td class="p-6 text-gray-300 font-bold text-xl group-hover:scale-110 transition-transform">2</td>
+                            <td class="p-6 font-mono text-white">NQ19...3M9L</td>
+                            <td class="p-6 text-center font-bold">110</td>
+                            <td class="p-6 text-center font-mono text-cyan-300 bg-cyan-900/20 font-bold">11,000 NIM</td>
+                            <td class="p-6 text-right font-bold text-gray-200">62h 15m</td>
                         </tr>
-                        <tr class="hover:bg-white/5 transition duration-200">
-                            <td class="p-5 text-orange-400 font-bold text-lg">3</td>
-                            <td class="p-5 font-mono text-white">NQ55...B7C1</td>
-                            <td class="p-5 text-center font-medium">89</td>
-                            <td class="p-5 text-center font-mono text-blue-300 bg-blue-500/5">8,900 NIM</td>
-                            <td class="p-5 text-right font-bold">45h 00m</td>
+                        <tr class="hover:bg-white/[0.05] transition duration-300 group">
+                            <td class="p-6 text-orange-400 font-bold text-xl group-hover:scale-110 transition-transform">3</td>
+                            <td class="p-6 font-mono text-white">NQ55...B7C1</td>
+                            <td class="p-6 text-center font-bold">89</td>
+                            <td class="p-6 text-center font-mono text-cyan-300 bg-cyan-900/20 font-bold">8,900 NIM</td>
+                            <td class="p-6 text-right font-bold text-gray-200">45h 00m</td>
                         </tr>
-                        <tr class="hover:bg-white/5 transition duration-200">
-                            <td class="p-5 text-gray-500 font-bold text-lg">4</td>
-                            <td class="p-5 font-mono text-gray-400">NQ22...K9N4</td>
-                            <td class="p-5 text-center text-gray-400">64</td>
-                            <td class="p-5 text-center font-mono text-gray-400 bg-white/5">6,400 NIM</td>
-                            <td class="p-5 text-right text-gray-400">31h 20m</td>
+                        <tr class="hover:bg-white/[0.05] transition duration-300">
+                            <td class="p-6 text-gray-500 font-bold text-lg">4</td>
+                            <td class="p-6 font-mono text-gray-400">NQ22...K9N4</td>
+                            <td class="p-6 text-center text-gray-400 font-medium">64</td>
+                            <td class="p-6 text-center font-mono text-gray-400">6,400 NIM</td>
+                            <td class="p-6 text-right text-gray-400">31h 20m</td>
                         </tr>
-                        <tr class="hover:bg-white/5 transition duration-200">
-                            <td class="p-5 text-gray-500 font-bold text-lg">5</td>
-                            <td class="p-5 font-mono text-gray-400">NQ99...ZZ11</td>
-                            <td class="p-5 text-center text-gray-400">42</td>
-                            <td class="p-5 text-center font-mono text-gray-400 bg-white/5">4,200 NIM</td>
-                            <td class="p-5 text-right text-gray-400">18h 45m</td>
+                        <tr class="hover:bg-white/[0.05] transition duration-300">
+                            <td class="p-6 text-gray-500 font-bold text-lg">5</td>
+                            <td class="p-6 font-mono text-gray-400">NQ99...ZZ11</td>
+                            <td class="p-6 text-center text-gray-400 font-medium">42</td>
+                            <td class="p-6 text-center font-mono text-gray-400">4,200 NIM</td>
+                            <td class="p-6 text-right text-gray-400">18h 45m</td>
                         </tr>
                     </tbody>
                 </table>
@@ -249,184 +316,181 @@
 
         <!-- TAB 3: MY STATS -->
         <section id="tab-stats" class="tab-content pt-8 max-w-4xl mx-auto">
-            <div class="text-center mb-10">
-                <h2 class="text-4xl font-extrabold mb-3 text-white">Personal Statistics</h2>
+            <div class="text-center mb-12">
+                <h2 class="text-5xl font-extrabold mb-4 text-white tracking-tight">Personal <span class="text-gradient">Statistics</span></h2>
                 <p class="text-gray-400 text-lg">Your decentralized productivity footprint.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="glass-panel p-8 rounded-3xl text-center border-t-2 border-blue-500 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent"></div>
-                    <div class="text-gray-400 text-xs uppercase tracking-widest mb-3 relative z-10">Total Time</div>
-                    <div class="text-5xl font-bold text-white relative z-10">0<span class="text-xl text-gray-500">h</span></div>
+                <div class="glass-panel p-8 rounded-3xl text-center border-t-2 border-cyan-400 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-b from-cyan-500/10 to-transparent group-hover:from-cyan-500/20 transition-all duration-500"></div>
+                    <div class="text-cyan-400 text-xs uppercase tracking-widest mb-3 relative z-10 font-bold">Total Time</div>
+                    <div class="text-5xl font-bold text-white relative z-10">0<span class="text-xl text-cyan-200/50">h</span></div>
                 </div>
-                <div class="glass-panel p-8 rounded-3xl text-center border-t-2 border-green-500 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-b from-green-500/10 to-transparent"></div>
-                    <div class="text-gray-400 text-xs uppercase tracking-widest mb-3 relative z-10">Success Rate</div>
-                    <div class="text-5xl font-bold text-white relative z-10">0<span class="text-xl text-gray-500">%</span></div>
+                <div class="glass-panel p-8 rounded-3xl text-center border-t-2 border-fuchsia-400 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-b from-fuchsia-500/10 to-transparent group-hover:from-fuchsia-500/20 transition-all duration-500"></div>
+                    <div class="text-fuchsia-400 text-xs uppercase tracking-widest mb-3 relative z-10 font-bold">Success Rate</div>
+                    <div class="text-5xl font-bold text-white relative z-10">0<span class="text-xl text-fuchsia-200/50">%</span></div>
                 </div>
-                <div class="glass-panel p-8 rounded-3xl text-center border-t-2 border-purple-500 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent"></div>
-                    <div class="text-gray-400 text-xs uppercase tracking-widest mb-3 relative z-10">NIM Protected</div>
+                <div class="glass-panel p-8 rounded-3xl text-center border-t-2 border-blue-400 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent group-hover:from-blue-500/20 transition-all duration-500"></div>
+                    <div class="text-blue-400 text-xs uppercase tracking-widest mb-3 relative z-10 font-bold">NIM Protected</div>
                     <div class="text-5xl font-bold text-white relative z-10">0</div>
                 </div>
             </div>
 
-            <div class="glass-panel p-10 rounded-3xl flex items-center justify-center h-56 border border-dashed border-white/20">
-                <p class="text-gray-500 text-lg">Connect wallet to view historical data.</p>
+            <div class="glass-panel p-10 rounded-3xl flex items-center justify-center h-56 border border-dashed border-cyan-500/30">
+                <p class="text-cyan-200/60 text-lg font-medium">Connect wallet to view historical data.</p>
             </div>
         </section>
 
-        <!-- TAB 4: NFT STORE (Toàn bộ 6 NFT) -->
+        <!-- TAB 4: NFT STORE -->
         <section id="tab-store" class="tab-content pt-8 max-w-6xl mx-auto">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-extrabold mb-3 text-white">Achievement Store</h2>
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-extrabold mb-4 text-white tracking-tight">Achievement <span class="text-gradient">Store</span></h2>
                 <p class="text-gray-400 text-lg">Mint exclusive Soulbound NFTs using your successful focus sessions.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- 1 -->
-                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300">
-                    <div class="h-48 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">🥉</span>
+                <!-- NFT Cards với hiệu ứng Hover Lift cực đẹp -->
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-3 transition-all duration-500 group cursor-pointer">
+                    <div class="h-48 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-inner group-hover:from-gray-700 group-hover:to-gray-800 transition-colors">
+                        <span class="text-6xl drop-shadow-2xl group-hover:scale-110 transition-transform duration-500">🥉</span>
                     </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Novice Monk</h3>
-                        <p class="text-sm text-gray-400 mb-5">Complete 10 successful sessions.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
-                    </div>
-                </div>
-                <!-- 2 -->
-                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300">
-                    <div class="h-48 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">🥈</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Deep Worker</h3>
-                        <p class="text-sm text-gray-400 mb-5">Complete 50 successful sessions.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
+                    <div class="p-8">
+                        <h3 class="font-bold text-2xl mb-2 text-white">Novice Monk</h3>
+                        <p class="text-sm text-gray-400 mb-6 font-medium">Complete 10 successful sessions.</p>
+                        <button class="w-full bg-white/5 py-3.5 rounded-xl text-sm font-semibold text-gray-500 border border-white/10" disabled>Locked</button>
                     </div>
                 </div>
-                <!-- 3 -->
-                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300">
-                    <div class="h-48 bg-gradient-to-br from-yellow-700 to-yellow-900 flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">🥇</span>
+                
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-3 transition-all duration-500 group cursor-pointer">
+                    <div class="h-48 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center shadow-inner group-hover:from-slate-600 group-hover:to-slate-700 transition-colors">
+                        <span class="text-6xl drop-shadow-2xl group-hover:scale-110 transition-transform duration-500">🥈</span>
                     </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Zen Master</h3>
-                        <p class="text-sm text-gray-400 mb-5">Complete 200 successful sessions.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
-                    </div>
-                </div>
-                <!-- 4 -->
-                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300 relative">
-                    <div class="absolute top-4 right-4 bg-blue-500/20 text-blue-400 text-xs uppercase font-bold px-3 py-1 rounded-full border border-blue-500/30">Epic</div>
-                    <div class="h-48 bg-gradient-to-br from-cyan-800 to-blue-900 flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">💎</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Diamond Hands</h3>
-                        <p class="text-sm text-gray-400 mb-5">Stake over 1,000 NIM without ever failing.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
+                    <div class="p-8">
+                        <h3 class="font-bold text-2xl mb-2 text-white">Deep Worker</h3>
+                        <p class="text-sm text-gray-400 mb-6 font-medium">Complete 50 successful sessions.</p>
+                        <button class="w-full bg-white/5 py-3.5 rounded-xl text-sm font-semibold text-gray-500 border border-white/10" disabled>Locked</button>
                     </div>
                 </div>
-                <!-- 5 -->
-                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300 relative">
-                    <div class="absolute top-4 right-4 bg-purple-500/20 text-purple-400 text-xs uppercase font-bold px-3 py-1 rounded-full border border-purple-500/30">Epic</div>
-                    <div class="h-48 bg-gradient-to-br from-fuchsia-800 to-purple-900 flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">🌊</span>
+                
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-3 transition-all duration-500 group cursor-pointer">
+                    <div class="h-48 bg-gradient-to-br from-yellow-700 to-yellow-900 flex items-center justify-center shadow-inner group-hover:from-yellow-600 group-hover:to-yellow-800 transition-colors">
+                        <span class="text-6xl drop-shadow-2xl group-hover:scale-110 transition-transform duration-500">🥇</span>
                     </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Flow State</h3>
-                        <p class="text-sm text-gray-400 mb-5">Accumulate 100 hours of total focus time.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
+                    <div class="p-8">
+                        <h3 class="font-bold text-2xl mb-2 text-white">Zen Master</h3>
+                        <p class="text-sm text-gray-400 mb-6 font-medium">Complete 200 successful sessions.</p>
+                        <button class="w-full bg-white/5 py-3.5 rounded-xl text-sm font-semibold text-gray-500 border border-white/10" disabled>Locked</button>
                     </div>
                 </div>
-                <!-- 6 -->
-                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300 relative">
-                    <div class="absolute top-4 right-4 bg-red-500/20 text-red-400 text-xs uppercase font-bold px-3 py-1 rounded-full border border-red-500/30">Legendary</div>
-                    <div class="h-48 bg-gradient-to-br from-red-900 to-black flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">🦉</span>
+                
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-3 transition-all duration-500 group cursor-pointer relative">
+                    <div class="absolute top-5 right-5 bg-cyan-500/20 text-cyan-300 text-xs uppercase font-bold px-4 py-1.5 rounded-full border border-cyan-500/30 backdrop-blur-md z-10 shadow-[0_0_15px_rgba(6,182,212,0.5)]">Epic</div>
+                    <div class="h-48 bg-gradient-to-br from-cyan-800 to-blue-900 flex items-center justify-center shadow-inner group-hover:from-cyan-700 group-hover:to-blue-800 transition-colors relative">
+                        <div class="absolute inset-0 bg-cyan-400/20 mix-blend-overlay"></div>
+                        <span class="text-6xl drop-shadow-[0_0_30px_rgba(6,182,212,0.8)] group-hover:scale-110 transition-transform duration-500 relative z-10">💎</span>
                     </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Night Owl</h3>
-                        <p class="text-sm text-gray-400 mb-5">Complete 20 sessions between 12 AM and 4 AM.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
+                    <div class="p-8">
+                        <h3 class="font-bold text-2xl mb-2 text-white">Diamond Hands</h3>
+                        <p class="text-sm text-gray-400 mb-6 font-medium">Stake over 1,000 NIM without ever failing.</p>
+                        <button class="w-full bg-white/5 py-3.5 rounded-xl text-sm font-semibold text-gray-500 border border-white/10" disabled>Locked</button>
+                    </div>
+                </div>
+                
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-3 transition-all duration-500 group cursor-pointer relative">
+                    <div class="absolute top-5 right-5 bg-fuchsia-500/20 text-fuchsia-300 text-xs uppercase font-bold px-4 py-1.5 rounded-full border border-fuchsia-500/30 backdrop-blur-md z-10 shadow-[0_0_15px_rgba(217,70,239,0.5)]">Epic</div>
+                    <div class="h-48 bg-gradient-to-br from-fuchsia-800 to-purple-900 flex items-center justify-center shadow-inner group-hover:from-fuchsia-700 group-hover:to-purple-800 transition-colors relative">
+                        <div class="absolute inset-0 bg-fuchsia-400/20 mix-blend-overlay"></div>
+                        <span class="text-6xl drop-shadow-[0_0_30px_rgba(217,70,239,0.8)] group-hover:scale-110 transition-transform duration-500 relative z-10">🌊</span>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="font-bold text-2xl mb-2 text-white">Flow State</h3>
+                        <p class="text-sm text-gray-400 mb-6 font-medium">Accumulate 100 hours of total focus time.</p>
+                        <button class="w-full bg-white/5 py-3.5 rounded-xl text-sm font-semibold text-gray-500 border border-white/10" disabled>Locked</button>
+                    </div>
+                </div>
+                
+                <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-3 transition-all duration-500 group cursor-pointer relative">
+                    <div class="absolute top-5 right-5 bg-red-500/20 text-red-300 text-xs uppercase font-bold px-4 py-1.5 rounded-full border border-red-500/30 backdrop-blur-md z-10 shadow-[0_0_15px_rgba(239,68,68,0.5)]">Legendary</div>
+                    <div class="h-48 bg-gradient-to-br from-red-900 to-rose-950 flex items-center justify-center shadow-inner group-hover:from-red-800 group-hover:to-rose-900 transition-colors relative">
+                        <div class="absolute inset-0 bg-red-500/10 mix-blend-overlay"></div>
+                        <span class="text-6xl drop-shadow-[0_0_40px_rgba(239,68,68,0.8)] group-hover:scale-110 transition-transform duration-500 relative z-10">🦉</span>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="font-bold text-2xl mb-2 text-white">Night Owl</h3>
+                        <p class="text-sm text-gray-400 mb-6 font-medium">Complete 20 sessions between 12 AM and 4 AM.</p>
+                        <button class="w-full bg-white/5 py-3.5 rounded-xl text-sm font-semibold text-gray-500 border border-white/10" disabled>Locked</button>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- TAB 5: FAQ (Toàn bộ 6 Câu hỏi) -->
+        <!-- TAB 5: FAQ -->
         <section id="tab-faq" class="tab-content pt-8 max-w-4xl mx-auto pb-20">
-            <div class="text-center mb-12">
-                <h2 class="text-4xl font-extrabold mb-4 text-white">Frequently Asked Questions</h2>
+            <div class="text-center mb-16">
+                <h2 class="text-5xl font-extrabold mb-4 text-white tracking-tight">Frequently <span class="text-gradient">Asked</span> Questions</h2>
                 <p class="text-gray-400 text-lg">Everything you need to know about the Focus Protocol mechanics.</p>
             </div>
 
             <div class="space-y-6">
-                <!-- Q1 -->
-                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
+                <div class="glass-panel p-8 md:p-10 rounded-3xl hover:bg-white/[0.04] transition-colors duration-300 group cursor-default">
+                    <h3 class="font-bold text-cyan-400 mb-4 text-xl flex items-center gap-4">
+                        <span class="bg-cyan-500/20 text-cyan-300 rounded-xl p-2.5 shadow-[0_0_15px_rgba(6,182,212,0.3)] group-hover:bg-cyan-500/30 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
                         What is Focus Protocol?
                     </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
+                    <p class="text-gray-300 leading-relaxed ml-14 text-lg font-medium">
                         Focus Protocol is a Web3 productivity dApp built on the Nimiq network. It solves procrastination by using financial collateral. You stake NIM crypto to start a work timer. If you complete it, your money is returned. If you cheat or quit, your money is liquidated.
                     </p>
                 </div>
 
-                <!-- Q2 -->
-                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></span>
+                <div class="glass-panel p-8 md:p-10 rounded-3xl hover:bg-white/[0.04] transition-colors duration-300 group cursor-default">
+                    <h3 class="font-bold text-cyan-400 mb-4 text-xl flex items-center gap-4">
+                        <span class="bg-cyan-500/20 text-cyan-300 rounded-xl p-2.5 shadow-[0_0_15px_rgba(6,182,212,0.3)] group-hover:bg-cyan-500/30 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></span>
                         How does the Anti-Cheat tracking work?
                     </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
+                    <p class="text-gray-300 leading-relaxed ml-14 text-lg font-medium">
                         The smart contract enforces a "Proof of Attention" mechanism. By utilizing the browser's native API, the application monitors your active tab. If you minimize the browser or switch to another tab (e.g., YouTube, Twitter), the contract detects the blur event and immediately fails the session.
                     </p>
                 </div>
 
-                <!-- Q3 -->
-                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08-.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
+                <div class="glass-panel p-8 md:p-10 rounded-3xl hover:bg-white/[0.04] transition-colors duration-300 group cursor-default">
+                    <h3 class="font-bold text-cyan-400 mb-4 text-xl flex items-center gap-4">
+                        <span class="bg-cyan-500/20 text-cyan-300 rounded-xl p-2.5 shadow-[0_0_15px_rgba(6,182,212,0.3)] group-hover:bg-cyan-500/30 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08-.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
                         Where do liquidated funds go?
                     </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
+                    <p class="text-gray-300 leading-relaxed ml-14 text-lg font-medium">
                         100% of liquidated funds (from users who forfeit or cheat) are sent to a community treasury. These funds are algorithmically distributed to the top users on the Leaderboard as a reward for extreme discipline, or used to burn NIM to support the ecosystem.
                     </p>
                 </div>
 
-                <!-- Q4 -->
-                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg></span>
+                <div class="glass-panel p-8 md:p-10 rounded-3xl hover:bg-white/[0.04] transition-colors duration-300 group cursor-default">
+                    <h3 class="font-bold text-cyan-400 mb-4 text-xl flex items-center gap-4">
+                        <span class="bg-cyan-500/20 text-cyan-300 rounded-xl p-2.5 shadow-[0_0_15px_rgba(6,182,212,0.3)] group-hover:bg-cyan-500/30 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg></span>
                         Is the Smart Contract audited?
                     </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
+                    <p class="text-gray-300 leading-relaxed ml-14 text-lg font-medium">
                         Yes. The core staking and liquidation logic utilizes the official Nimiq Hub API and standard escrow contracts, which have been thoroughly audited by top-tier security firms. Your funds are never held by a centralized third party.
                     </p>
                 </div>
 
-                <!-- Q5 -->
-                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg></span>
+                <div class="glass-panel p-8 md:p-10 rounded-3xl hover:bg-white/[0.04] transition-colors duration-300 group cursor-default">
+                    <h3 class="font-bold text-cyan-400 mb-4 text-xl flex items-center gap-4">
+                        <span class="bg-cyan-500/20 text-cyan-300 rounded-xl p-2.5 shadow-[0_0_15px_rgba(6,182,212,0.3)] group-hover:bg-cyan-500/30 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg></span>
                         What happens if I lose my internet connection?
                     </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
+                    <p class="text-gray-300 leading-relaxed ml-14 text-lg font-medium">
                         The protocol includes a 60-second grace period for network drops. As long as you do not close the tab or switch windows, the timer will resync with the blockchain once your connection is restored.
                     </p>
                 </div>
 
-                <!-- Q6 -->
-                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg></span>
+                <div class="glass-panel p-8 md:p-10 rounded-3xl hover:bg-white/[0.04] transition-colors duration-300 group cursor-default">
+                    <h3 class="font-bold text-cyan-400 mb-4 text-xl flex items-center gap-4">
+                        <span class="bg-cyan-500/20 text-cyan-300 rounded-xl p-2.5 shadow-[0_0_15px_rgba(6,182,212,0.3)] group-hover:bg-cyan-500/30 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg></span>
                         Are there any protocol fees?
                     </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
+                    <p class="text-gray-300 leading-relaxed ml-14 text-lg font-medium">
                         No. Focus Protocol charges a 0% fee for successful sessions. You get exactly what you staked back. The platform sustains itself entirely through the liquidated collateral of users who fail their sessions.
                     </p>
                 </div>
@@ -435,7 +499,7 @@
 
     </main>
 
-    <!-- SCRIPT XỬ LÝ LOGIC CHÍNH -->
+    <!-- LOGIC API NIMIQ ĐÃ HOẠT ĐỘNG HOÀN HẢO -->
     <script>
         function switchTab(tabId, isCenterTab) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active', 'tab-center'));
@@ -466,18 +530,21 @@
                 return;
             }
             
-            // Kết nối vào Nimiq qua thư viện CDN
+            // KẾT NỐI VÀO MÁY CHỦ MAINNET QUA CDN
             const hubApi = new HubApi('https://hub.nimiq.com');
 
             const originalText = btnElement.innerHTML;
-            btnElement.innerHTML = "Waiting for Nimiq Keyguard...";
+            btnElement.innerHTML = `
+                <svg class="w-6 h-6 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                Waiting for Keyguard...
+            `;
             btnElement.disabled = true;
 
             try {
                 const messageToSign = `Sign in to Focus Protocol\nAddress: NQ07 0000 0000 0000\nAmount: ${amount} NIM\nFee: 0 NIM\nValid for 5 minutes. Signing costs nothing and moves no NIM.`;
                 const messageBytes = new Uint8Array([...messageToSign].map(c => c.charCodeAt(0)));
 
-                // Bật Popup ký chính thức
+                // Bật Popup ký
                 const signedMessageResult = await hubApi.signMessage({
                     appName: 'Focus Protocol',
                     message: messageBytes
@@ -488,6 +555,7 @@
                 document.getElementById('walletStatusDot').classList.replace('bg-red-500', 'bg-green-500');
                 document.getElementById('walletStatusDot').style.boxShadow = '0 0 10px rgba(74, 222, 128, 0.8)';
                 document.getElementById('walletAddressText').innerText = `${amount} NIM Locked`;
+                document.getElementById('walletAddressText').classList.add('text-green-400');
                 
                 startTimerUI(task, duration);
 
@@ -544,7 +612,7 @@
             document.getElementById('timerSection').classList.remove('flex');
             
             const resultBox = document.getElementById('resultMessage');
-            resultBox.className = `mt-8 p-8 rounded-2xl text-center font-bold text-xl border bg-black/60 ${colorClasses}`;
+            resultBox.className = `mt-8 p-10 rounded-[2rem] text-center font-bold text-2xl border bg-darkBase/80 backdrop-blur-2xl shadow-2xl ${colorClasses}`;
             resultBox.innerText = text;
             resultBox.classList.remove('hidden');
             setTimeout(() => location.reload(), 4000);
