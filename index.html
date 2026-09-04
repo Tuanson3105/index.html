@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Focus Protocol | Web3 Productivity</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- THƯ VIỆN CHÍNH THỨC NIMIQ HUB SDK (Tải tĩnh ngay từ Head) -->
     <script src="https://hub.nimiq-testnet.com/build/hub-api.js"></script>
     
     <script>
@@ -12,7 +14,7 @@
             theme: {
                 extend: {
                     colors: {
-                        dark: '#030305', /* Sâu hơn, đậm chất tech */
+                        dark: '#030305',
                         panel: 'rgba(15, 15, 20, 0.65)',
                         brand: '#3b82f6',
                     },
@@ -66,7 +68,7 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fade-in 0.4s ease-out forwards; }
         
-        /* Flex Center riêng cho Tab 1 để không làm hỏng các tab khác */
+        /* Flex Center riêng cho Tab 1 */
         .tab-content.active.tab-center { display: flex; flex-direction: column; justify-content: center; min-h-[75vh]; }
 
         /* Nav Styling */
@@ -90,9 +92,7 @@
 
     <!-- NỀN WEB3 ẤN TƯỢNG -->
     <div class="fixed inset-0 z-[-1] pointer-events-none">
-        <!-- Lưới Tech -->
         <div class="absolute inset-0 bg-grid"></div>
-        <!-- Khối sáng lỏng (Glowing Orbs) -->
         <div class="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-blue-600/10 rounded-full blur-[120px] animate-blob"></div>
         <div class="absolute bottom-[-10%] right-[-10%] w-[40vw] h-[40vw] bg-purple-600/10 rounded-full blur-[120px] animate-blob-slow"></div>
     </div>
@@ -100,7 +100,6 @@
     <!-- NAVBAR -->
     <nav class="w-full border-b border-white/5 bg-dark/60 backdrop-blur-xl sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            
             <div class="flex items-center gap-3 cursor-pointer">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.4)]">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
@@ -127,13 +126,10 @@
     <main class="flex-grow w-full max-w-7xl mx-auto p-6 md:p-10 relative z-10">
 
         <!-- ==========================================
-             TAB 1: STAKE & FOCUS (Đã phóng to & Căn giữa)
+             TAB 1: STAKE & FOCUS
         =========================================== -->
         <section id="tab-stake" class="tab-content active tab-center items-center">
-            
-            <!-- Vùng điều khiển chính siêu to -->
             <div class="w-full max-w-2xl relative">
-                <!-- Ánh sáng viền -->
                 <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-[2.5rem] blur opacity-30 animate-pulse"></div>
                 
                 <div class="glass-panel rounded-[2.5rem] p-10 md:p-12 relative overflow-hidden">
@@ -171,7 +167,8 @@
                                 </div>
                             </div>
 
-                            <button onclick="startFocusSession()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg py-5 rounded-2xl transition-all mt-6 active:scale-[0.98] shadow-[0_0_30px_rgba(59,130,246,0.4)] flex justify-center items-center gap-3">
+                            <!-- LƯU Ý SỰ KIỆN NÚT BẤM -->
+                            <button onclick="startFocusSession(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg py-5 rounded-2xl transition-all mt-6 active:scale-[0.98] shadow-[0_0_30px_rgba(59,130,246,0.4)] flex justify-center items-center gap-3">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                 Stake Collateral & Start
                             </button>
@@ -207,7 +204,7 @@
         </section>
 
         <!-- ==========================================
-             TAB 2: LEADERBOARD (Đã đẩy lên & thêm cột)
+             TAB 2: LEADERBOARD
         =========================================== -->
         <section id="tab-leaderboard" class="tab-content pt-8 max-w-5xl mx-auto">
             <div class="text-center mb-10">
@@ -268,7 +265,7 @@
         </section>
 
         <!-- ==========================================
-             TAB 3: MY STATS (Đã đẩy lên)
+             TAB 3: MY STATS
         =========================================== -->
         <section id="tab-stats" class="tab-content pt-8 max-w-4xl mx-auto">
             <div class="text-center mb-10">
@@ -300,7 +297,7 @@
         </section>
 
         <!-- ==========================================
-             TAB 4: NFT STORE (6 Thành tựu)
+             TAB 4: NFT STORE
         =========================================== -->
         <section id="tab-store" class="tab-content pt-8 max-w-6xl mx-auto">
             <div class="text-center mb-12">
@@ -382,7 +379,7 @@
         </section>
 
         <!-- ==========================================
-             TAB 5: FAQ (Đã đổi tên & Mở rộng 6 câu hỏi)
+             TAB 5: FAQ 
         =========================================== -->
         <section id="tab-faq" class="tab-content pt-8 max-w-4xl mx-auto pb-20">
             <div class="text-center mb-12">
@@ -416,7 +413,7 @@
                 <!-- Q3 -->
                 <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
                     <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
+                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08-.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
                         Where do liquidated funds go?
                     </h3>
                     <p class="text-gray-300 leading-relaxed ml-12">
@@ -462,7 +459,7 @@
 
     </main>
 
-    <!-- ROUTING & LOGIC -->
+    <!-- ROUTING & LOGIC (Hệ thống xử lý tương tác Web3 thật) -->
     <script>
         function switchTab(tabId, isCenterTab) {
             document.querySelectorAll('.tab-content').forEach(el => {
@@ -484,35 +481,23 @@
         let timerInterval;
         let isFocusing = false;
 
-        // KHỞI TẠO AN TOÀN: Đảm bảo HubApi đã sẵn sàng
+        // Khởi tạo HubApi TĨNH ngay khi trang load
         let hubApi = null;
-        
-        async function initNimiqHub() {
-            if (hubApi) return hubApi;
+        window.addEventListener('DOMContentLoaded', () => {
             try {
                 if (typeof HubApi !== 'undefined') {
                     hubApi = new HubApi('https://hub.nimiq-testnet.com');
+                    console.log("Nimiq Hub API connected.");
                 } else {
-                    // Nếu thư viện chưa load kịp, tự động nạp động (dynamic load)
-                    await new Promise((resolve, reject) => {
-                        const script = document.createElement('script');
-                        script.src = 'https://hub.nimiq-testnet.com/build/hub-api.js';
-                        script.onload = () => {
-                            hubApi = new HubApi('https://hub.nimiq-testnet.com');
-                            resolve();
-                        };
-                        script.onerror = reject;
-                        document.head.appendChild(script);
-                    });
+                    console.error("Critical: Nimiq SDK blocked or not loaded.");
                 }
-                return hubApi;
-            } catch (err) {
-                console.error("Failed to initialize HubApi:", err);
-                return null;
+            } catch (e) {
+                console.error("HubApi Initialization failed:", e);
             }
-        }
+        });
 
-        async function startFocusSession() {
+        // Hàm gọi giao dịch thật
+        async function startFocusSession(btnElement) {
             const task = document.getElementById('taskInput').value;
             const duration = parseInt(document.getElementById('timeSelect').value);
             const amount = parseInt(document.getElementById('amountSelect').value);
@@ -522,19 +507,14 @@
                 return; 
             }
 
-            const startBtn = event.currentTarget;
-            const originalText = startBtn.innerHTML;
-            startBtn.innerHTML = "Connecting to Nimiq...";
-            startBtn.disabled = true;
-
-            // Đảm bảo API được tải xong trước khi gọi
-            const api = await initNimiqHub();
-            if (!api) {
-                alert("Could not connect to Nimiq Network. Please check your network or ad-blocker.");
-                startBtn.innerHTML = originalText;
-                startBtn.disabled = false;
+            if (!hubApi) {
+                alert("Nimiq Hub SDK is still loading or blocked by an extension. Please disable AdBlocker (Brave Shields) and refresh the page.");
                 return;
             }
+
+            const originalText = btnElement.innerHTML;
+            btnElement.innerHTML = "Opening Nimiq Keyguard...";
+            btnElement.disabled = true;
 
             try {
                 const requestOptions = {
@@ -545,10 +525,10 @@
                     extraData: textEncode(task)
                 };
 
-                // Gọi cửa sổ Keyguard thật từ Nimiq
-                const result = await api.checkout(requestOptions);
+                // Gọi cửa sổ Keyguard chính hãng của Nimiq
+                const result = await hubApi.checkout(requestOptions);
                 
-                console.log("Transaction successful, hash:", result.hash);
+                console.log("Transaction Hash:", result.hash);
 
                 document.getElementById('walletStatusDot').classList.replace('bg-red-500', 'bg-green-500');
                 document.getElementById('walletStatusDot').style.boxShadow = '0 0 10px rgba(74, 222, 128, 0.8)';
@@ -558,13 +538,73 @@
 
             } catch (error) {
                 console.warn("User closed popup or error:", error);
-                startBtn.innerHTML = originalText;
-                startBtn.disabled = false;
+                btnElement.innerHTML = originalText;
+                btnElement.disabled = false;
             }
         }
 
         function textEncode(str) {
             return new Uint8Array([...str].map(char => char.charCodeAt(0)));
         }
+
+        function startTimerUI(task, durationMins) {
+            document.getElementById('setupSection').classList.add('hidden');
+            const timerSec = document.getElementById('timerSection');
+            timerSec.classList.remove('hidden');
+            timerSec.classList.add('flex');
+            
+            document.getElementById('currentTask').innerText = task;
+            isFocusing = true;
+            timeLeft = durationMins * 60;
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) winSession();
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+            const s = (timeLeft % 60).toString().padStart(2, '0');
+            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
+        }
+
+        function winSession() {
+            clearInterval(timerInterval); 
+            isFocusing = false;
+            showResult("🎉 Session Complete! Funds unlocked.", "border-green-500 text-green-400");
+        }
+
+        function giveUp() {
+            if(!confirm("Are you sure? You will lose your NIM stake.")) return;
+            loseSession("Forfeited. Funds liquidated.");
+        }
+
+        function loseSession(reason) {
+            clearInterval(timerInterval); 
+            isFocusing = false;
+            showResult(reason, "border-red-500 text-red-400");
+        }
+
+        function showResult(text, colorClasses) {
+            document.getElementById('timerSection').classList.add('hidden');
+            document.getElementById('timerSection').classList.remove('flex');
+            
+            const resultBox = document.getElementById('resultMessage');
+            resultBox.className = `mt-8 p-8 rounded-2xl text-center font-bold text-xl border bg-black/60 ${colorClasses}`;
+            resultBox.innerText = text;
+            resultBox.classList.remove('hidden');
+            setTimeout(() => location.reload(), 4000);
+        }
+
+        // TÍNH NĂNG CHỐNG GIAN LẬN: Rời tab là mất tiền
+        document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "hidden" && isFocusing) {
+                loseSession("⚠️ CHEATING DETECTED. Funds liquidated.");
+            }
+        });
+    </script>
 </body>
 </html>
