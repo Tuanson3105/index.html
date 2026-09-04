@@ -483,67 +483,14 @@
         let timeLeft = 0; 
         let timerInterval;
         let isFocusing = false;
-        
-        // MOCK NGL/NIMIQ HUB CHECKOUT (Vượt lỗi mạng Testnet, chạy 100% mượt mà)
-        function mockNimiqHubCheckout(amount) {
-            return new Promise((resolve, reject) => {
-                const overlay = document.createElement('div');
-                overlay.className = "fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 opacity-0 transition-opacity duration-300";
-                
-                const popup = document.createElement('div');
-                popup.className = "bg-[#141418] rounded-3xl p-8 max-w-sm w-full shadow-2xl border border-white/10 transform scale-95 transition-transform duration-300";
-                
-                popup.innerHTML = `
-                    <div class="text-center mb-6">
-                        <div class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-indigo-500 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-[0_0_20px_rgba(59,130,246,0.4)]">
-                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-1">Nimiq Pay Hub</h3>
-                        <p class="text-xs text-gray-400">Secure Decentralized Checkout</p>
-                    </div>
-                    <div class="bg-black/40 rounded-2xl p-4 mb-6 border border-white/5 space-y-2">
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-400">Recipient:</span>
-                            <span class="font-mono text-xs text-gray-300">NQ07...0000</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-400">Staking Amount:</span>
-                            <span class="font-bold text-blue-400">${amount} NIM</span>
-                        </div>
-                        <div class="flex justify-between text-sm">
-                            <span class="text-gray-400">Network Fee:</span>
-                            <span class="font-bold text-white">0 NIM</span>
-                        </div>
-                    </div>
-                    <button id="mockConfirmBtn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl mb-3 transition shadow-[0_0_15px_rgba(59,130,246,0.4)]">
-                        Approve & Sign
-                    </button>
-                    <button id="mockCancelBtn" class="w-full bg-transparent hover:bg-white/5 text-gray-400 font-semibold py-3 rounded-xl transition">
-                        Reject
-                    </button>
-                `;
-                
-                overlay.appendChild(popup);
-                document.body.appendChild(overlay);
-                
-                setTimeout(() => {
-                    overlay.classList.remove('opacity-0');
-                    popup.classList.remove('scale-95');
-                }, 10);
 
-                document.getElementById('mockConfirmBtn').onclick = () => {
-                    document.getElementById('mockConfirmBtn').innerHTML = "Broadcasting to Chain...";
-                    setTimeout(() => {
-                        overlay.remove();
-                        resolve({ hash: "0x" + Math.random().toString(16).slice(2) });
-                    }, 800);
-                };
-                
-                document.getElementById('mockCancelBtn').onclick = () => {
-                    overlay.remove();
-                    reject("User rejected transaction");
-                };
-            });
+        // KHỞI TẠO NATIVE NIMIQ HUB API CHUẨN XÁC
+        let hubApi;
+        try {
+            // Trỏ trực tiếp tới endpoint Testnet chính thức của Nimiq
+            hubApi = new HubApi('https://hub.nimiq-testnet.com');
+        } catch (err) {
+            console.error("Failed to initialize Nimiq Hub API", err);
         }
 
         async function startFocusSession() {
@@ -556,14 +503,31 @@
                 return; 
             }
 
+            if (!hubApi) {
+                alert("Nimiq Hub API not loaded.");
+                return;
+            }
+
             try {
                 const startBtn = event.currentTarget;
-                startBtn.innerHTML = "Opening Nimiq Pay...";
+                startBtn.innerHTML = "Opening Nimiq Keyguard...";
                 startBtn.disabled = true;
 
-                const signedTx = await mockNimiqHubCheckout(amount);
-                console.log("Tx Hash:", signedTx.hash);
+                // GỌI HÀM CHECKOUT CHUẨN CỦA NIMIQ HUB (Sẽ bật ra Keyguard thật)
+                const requestOptions = {
+                    appName: 'Focus Protocol',
+                    recipient: 'NQ07 0000 0000 0000 0000 0000 0000 0000 0000',
+                    value: amount * 1e5, // Đổi sang đơn vị Luna
+                    fee: 0,
+                    extraData: textEncode(task)
+                };
+
+                // Lệnh này sẽ gọi trực tiếp cửa sổ Keyguard y hệt như reef.nimiq.cafe
+                const result = await hubApi.checkout(requestOptions);
                 
+                console.log("Transaction successful, hash:", result.hash);
+
+                // Cập nhật UI ví đã khóa tiền
                 document.getElementById('walletStatusDot').classList.replace('bg-red-500', 'bg-green-500');
                 document.getElementById('walletStatusDot').style.boxShadow = '0 0 10px rgba(74, 222, 128, 0.8)';
                 document.getElementById('walletAddressText').innerText = `${amount} NIM Locked`;
@@ -571,11 +535,16 @@
                 startTimerUI(task, duration);
 
             } catch (error) {
-                console.warn(error);
+                console.warn("User closed popup or error:", error);
                 const btn = document.querySelector('button[onclick="startFocusSession()"]');
                 btn.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Stake Collateral & Start`;
                 btn.disabled = false;
             }
+        }
+
+        // Hỗ trợ mã hóa chuỗi thông điệp sang bytes cho Nimiq
+        function textEncode(str) {
+            return new Uint8Array([...str].map(char => char.charCodeAt(0)));
         }
 
         function startTimerUI(task, durationMins) {
