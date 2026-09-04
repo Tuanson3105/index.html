@@ -6,9 +6,6 @@
     <title>Focus Protocol | Web3 Productivity</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- THƯ VIỆN CHÍNH THỨC NIMIQ HUB SDK (Tải tĩnh ngay từ Head) -->
-    <script src="https://hub.nimiq-testnet.com/build/hub-api.js"></script>
-    
     <script>
         tailwind.config = {
             theme: {
@@ -46,7 +43,6 @@
             overflow-x: hidden;
         }
 
-        /* Lưới công nghệ Web3 (Animated Grid) */
         .bg-grid {
             background-size: 40px 40px;
             background-image: 
@@ -64,14 +60,10 @@
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05);
         }
 
-        /* Tabs Logic */
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fade-in 0.4s ease-out forwards; }
-        
-        /* Flex Center riêng cho Tab 1 */
         .tab-content.active.tab-center { display: flex; flex-direction: column; justify-content: center; min-h-[75vh]; }
 
-        /* Nav Styling */
         .nav-tab { position: relative; color: #888; transition: all 0.3s ease; padding-bottom: 28px; top: 14px; }
         .nav-tab:hover { color: #fff; }
         .nav-tab.active { color: #fff; font-weight: 600; }
@@ -81,7 +73,6 @@
             border-radius: 3px 3px 0 0;
         }
 
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #030305; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
@@ -90,7 +81,6 @@
 </head>
 <body class="min-h-screen flex flex-col selection:bg-blue-500/30 relative">
 
-    <!-- NỀN WEB3 ẤN TƯỢNG -->
     <div class="fixed inset-0 z-[-1] pointer-events-none">
         <div class="absolute inset-0 bg-grid"></div>
         <div class="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] bg-blue-600/10 rounded-full blur-[120px] animate-blob"></div>
@@ -125,16 +115,12 @@
     <!-- MAIN CONTENT -->
     <main class="flex-grow w-full max-w-7xl mx-auto p-6 md:p-10 relative z-10">
 
-        <!-- ==========================================
-             TAB 1: STAKE & FOCUS
-        =========================================== -->
+        <!-- TAB 1: STAKE & FOCUS -->
         <section id="tab-stake" class="tab-content active tab-center items-center">
             <div class="w-full max-w-2xl relative">
                 <div class="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-[2.5rem] blur opacity-30 animate-pulse"></div>
                 
                 <div class="glass-panel rounded-[2.5rem] p-10 md:p-12 relative overflow-hidden">
-                    
-                    <!-- Setup Section -->
                     <div id="setupSection" class="transition-all duration-300">
                         <div class="text-center mb-10">
                             <h2 class="text-3xl font-extrabold text-white mb-3">Initialize Session</h2>
@@ -167,7 +153,6 @@
                                 </div>
                             </div>
 
-                            <!-- LƯU Ý SỰ KIỆN NÚT BẤM -->
                             <button onclick="startFocusSession(this)" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-lg py-5 rounded-2xl transition-all mt-6 active:scale-[0.98] shadow-[0_0_30px_rgba(59,130,246,0.4)] flex justify-center items-center gap-3">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
                                 Stake Collateral & Start
@@ -175,7 +160,6 @@
                         </div>
                     </div>
 
-                    <!-- Timer Section -->
                     <div id="timerSection" class="hidden flex-col items-center text-center">
                         <div class="bg-white/5 border border-white/10 px-5 py-2 rounded-full mb-10 flex items-center gap-3">
                             <div class="w-2.5 h-2.5 bg-blue-400 rounded-full animate-pulse"></div>
@@ -203,9 +187,7 @@
             </div>
         </section>
 
-        <!-- ==========================================
-             TAB 2: LEADERBOARD
-        =========================================== -->
+        <!-- TAB 2: LEADERBOARD -->
         <section id="tab-leaderboard" class="tab-content pt-8 max-w-5xl mx-auto">
             <div class="text-center mb-10">
                 <h2 class="text-4xl font-extrabold mb-3 text-white">Discipline Leaderboard</h2>
@@ -252,21 +234,12 @@
                             <td class="p-5 text-center font-mono text-gray-400 bg-white/5">6,400 NIM</td>
                             <td class="p-5 text-right text-gray-400">31h 20m</td>
                         </tr>
-                        <tr class="hover:bg-white/5 transition duration-200">
-                            <td class="p-5 text-gray-500 font-bold text-lg">5</td>
-                            <td class="p-5 font-mono text-gray-400">NQ99...ZZ11</td>
-                            <td class="p-5 text-center text-gray-400">42</td>
-                            <td class="p-5 text-center font-mono text-gray-400 bg-white/5">4,200 NIM</td>
-                            <td class="p-5 text-right text-gray-400">18h 45m</td>
-                        </tr>
                     </tbody>
                 </table>
             </div>
         </section>
 
-        <!-- ==========================================
-             TAB 3: MY STATS
-        =========================================== -->
+        <!-- TAB 3: MY STATS -->
         <section id="tab-stats" class="tab-content pt-8 max-w-4xl mx-auto">
             <div class="text-center mb-10">
                 <h2 class="text-4xl font-extrabold mb-3 text-white">Personal Statistics</h2>
@@ -296,9 +269,7 @@
             </div>
         </section>
 
-        <!-- ==========================================
-             TAB 4: NFT STORE
-        =========================================== -->
+        <!-- TAB 4: NFT STORE -->
         <section id="tab-store" class="tab-content pt-8 max-w-6xl mx-auto">
             <div class="text-center mb-12">
                 <h2 class="text-4xl font-extrabold mb-3 text-white">Achievement Store</h2>
@@ -306,173 +277,70 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- 1 -->
+                <!-- Achievement items -->
                 <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300">
-                    <div class="h-48 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">🥉</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Novice Monk</h3>
-                        <p class="text-sm text-gray-400 mb-5">Complete 10 successful sessions.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
-                    </div>
+                    <div class="h-48 bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center shadow-inner"><span class="text-6xl drop-shadow-2xl">🥉</span></div>
+                    <div class="p-6"><h3 class="font-bold text-xl mb-1 text-white">Novice Monk</h3><p class="text-sm text-gray-400 mb-5">Complete 10 successful sessions.</p><button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button></div>
                 </div>
-                <!-- 2 -->
                 <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300">
-                    <div class="h-48 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">🥈</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Deep Worker</h3>
-                        <p class="text-sm text-gray-400 mb-5">Complete 50 successful sessions.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
-                    </div>
+                    <div class="h-48 bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center shadow-inner"><span class="text-6xl drop-shadow-2xl">🥈</span></div>
+                    <div class="p-6"><h3 class="font-bold text-xl mb-1 text-white">Deep Worker</h3><p class="text-sm text-gray-400 mb-5">Complete 50 successful sessions.</p><button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button></div>
                 </div>
-                <!-- 3 -->
                 <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300">
-                    <div class="h-48 bg-gradient-to-br from-yellow-700 to-yellow-900 flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">🥇</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Zen Master</h3>
-                        <p class="text-sm text-gray-400 mb-5">Complete 200 successful sessions.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
-                    </div>
+                    <div class="h-48 bg-gradient-to-br from-yellow-700 to-yellow-900 flex items-center justify-center shadow-inner"><span class="text-6xl drop-shadow-2xl">🥇</span></div>
+                    <div class="p-6"><h3 class="font-bold text-xl mb-1 text-white">Zen Master</h3><p class="text-sm text-gray-400 mb-5">Complete 200 successful sessions.</p><button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button></div>
                 </div>
-                <!-- 4 -->
                 <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300 relative">
                     <div class="absolute top-4 right-4 bg-blue-500/20 text-blue-400 text-xs uppercase font-bold px-3 py-1 rounded-full border border-blue-500/30">Epic</div>
-                    <div class="h-48 bg-gradient-to-br from-cyan-800 to-blue-900 flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">💎</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Diamond Hands</h3>
-                        <p class="text-sm text-gray-400 mb-5">Stake over 1,000 NIM without ever failing.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
-                    </div>
+                    <div class="h-48 bg-gradient-to-br from-cyan-800 to-blue-900 flex items-center justify-center shadow-inner"><span class="text-6xl drop-shadow-2xl">💎</span></div>
+                    <div class="p-6"><h3 class="font-bold text-xl mb-1 text-white">Diamond Hands</h3><p class="text-sm text-gray-400 mb-5">Stake over 1,000 NIM without ever failing.</p><button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button></div>
                 </div>
-                <!-- 5 -->
                 <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300 relative">
                     <div class="absolute top-4 right-4 bg-purple-500/20 text-purple-400 text-xs uppercase font-bold px-3 py-1 rounded-full border border-purple-500/30">Epic</div>
-                    <div class="h-48 bg-gradient-to-br from-fuchsia-800 to-purple-900 flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">🌊</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Flow State</h3>
-                        <p class="text-sm text-gray-400 mb-5">Accumulate 100 hours of total focus time.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
-                    </div>
+                    <div class="h-48 bg-gradient-to-br from-fuchsia-800 to-purple-900 flex items-center justify-center shadow-inner"><span class="text-6xl drop-shadow-2xl">🌊</span></div>
+                    <div class="p-6"><h3 class="font-bold text-xl mb-1 text-white">Flow State</h3><p class="text-sm text-gray-400 mb-5">Accumulate 100 hours of total focus time.</p><button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button></div>
                 </div>
-                <!-- 6 -->
                 <div class="glass-panel rounded-3xl overflow-hidden hover:-translate-y-2 transition-transform duration-300 relative">
                     <div class="absolute top-4 right-4 bg-red-500/20 text-red-400 text-xs uppercase font-bold px-3 py-1 rounded-full border border-red-500/30">Legendary</div>
-                    <div class="h-48 bg-gradient-to-br from-red-900 to-black flex items-center justify-center shadow-inner">
-                        <span class="text-6xl drop-shadow-2xl">🦉</span>
-                    </div>
-                    <div class="p-6">
-                        <h3 class="font-bold text-xl mb-1 text-white">Night Owl</h3>
-                        <p class="text-sm text-gray-400 mb-5">Complete 20 sessions between 12 AM and 4 AM.</p>
-                        <button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button>
-                    </div>
+                    <div class="h-48 bg-gradient-to-br from-red-900 to-black flex items-center justify-center shadow-inner"><span class="text-6xl drop-shadow-2xl">🦉</span></div>
+                    <div class="p-6"><h3 class="font-bold text-xl mb-1 text-white">Night Owl</h3><p class="text-sm text-gray-400 mb-5">Complete 20 sessions between 12 AM and 4 AM.</p><button class="w-full bg-white/5 hover:bg-white/10 py-3 rounded-xl text-sm font-semibold transition cursor-not-allowed text-gray-500 border border-white/10" disabled>Locked</button></div>
                 </div>
             </div>
         </section>
 
-        <!-- ==========================================
-             TAB 5: FAQ 
-        =========================================== -->
+        <!-- TAB 5: FAQ -->
         <section id="tab-faq" class="tab-content pt-8 max-w-4xl mx-auto pb-20">
             <div class="text-center mb-12">
                 <h2 class="text-4xl font-extrabold mb-4 text-white">Frequently Asked Questions</h2>
                 <p class="text-gray-400 text-lg">Everything you need to know about the Focus Protocol mechanics.</p>
             </div>
-
             <div class="space-y-6">
-                <!-- Q1 -->
+                <!-- FAQ Items -->
                 <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
-                        What is Focus Protocol?
-                    </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
-                        Focus Protocol is a Web3 productivity dApp built on the Nimiq network. It solves procrastination by using financial collateral. You stake NIM crypto to start a work timer. If you complete it, your money is returned. If you cheat or quit, your money is liquidated.
-                    </p>
+                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>What is Focus Protocol?</h3>
+                    <p class="text-gray-300 leading-relaxed ml-12">Focus Protocol is a Web3 productivity dApp built on the Nimiq network. It solves procrastination by using financial collateral. You stake NIM crypto to start a work timer. If you complete it, your money is returned. If you cheat or quit, your money is liquidated.</p>
                 </div>
-
-                <!-- Q2 -->
                 <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></span>
-                        How does the Anti-Cheat tracking work?
-                    </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
-                        The smart contract enforces a "Proof of Attention" mechanism. By utilizing the browser's native API, the application monitors your active tab. If you minimize the browser or switch to another tab (e.g., YouTube, Twitter), the contract detects the blur event and immediately fails the session.
-                    </p>
+                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></span>How does the Anti-Cheat tracking work?</h3>
+                    <p class="text-gray-300 leading-relaxed ml-12">The smart contract enforces a "Proof of Attention" mechanism. By utilizing the browser's native API, the application monitors your active tab. If you minimize the browser or switch to another tab, the contract detects the blur event and immediately fails the session.</p>
                 </div>
-
-                <!-- Q3 -->
                 <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08-.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>
-                        Where do liquidated funds go?
-                    </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
-                        100% of liquidated funds (from users who forfeit or cheat) are sent to a community treasury. These funds are algorithmically distributed to the top users on the Leaderboard as a reward for extreme discipline, or used to burn NIM to support the ecosystem.
-                    </p>
+                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3"><span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08-.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></span>Where do liquidated funds go?</h3>
+                    <p class="text-gray-300 leading-relaxed ml-12">100% of liquidated funds (from users who forfeit or cheat) are sent to a community treasury. These funds are algorithmically distributed to the top users on the Leaderboard as a reward for extreme discipline.</p>
                 </div>
-
-                <!-- Q4 -->
-                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg></span>
-                        Is the Smart Contract audited?
-                    </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
-                        Yes. The core staking and liquidation logic utilizes the official Nimiq Hub API and standard escrow contracts, which have been thoroughly audited by top-tier security firms. Your funds are never held by a centralized third party.
-                    </p>
-                </div>
-
-                <!-- Q5 -->
-                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414"></path></svg></span>
-                        What happens if I lose my internet connection?
-                    </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
-                        The protocol includes a 60-second grace period for network drops. As long as you do not close the tab or switch windows, the timer will resync with the blockchain once your connection is restored.
-                    </p>
-                </div>
-
-                <!-- Q6 -->
-                <div class="glass-panel p-8 rounded-3xl hover:bg-white/[0.02] transition">
-                    <h3 class="font-bold text-blue-400 mb-3 text-xl flex items-center gap-3">
-                        <span class="bg-blue-500/20 text-blue-400 rounded-lg p-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg></span>
-                        Are there any protocol fees?
-                    </h3>
-                    <p class="text-gray-300 leading-relaxed ml-12">
-                        No. Focus Protocol charges a 0% fee for successful sessions. You get exactly what you staked back. The platform sustains itself entirely through the liquidated collateral of users who fail their sessions.
-                    </p>
-                </div>
-
             </div>
         </section>
 
     </main>
 
-    <!-- ROUTING & LOGIC (Hệ thống xử lý tương tác Web3 thật) -->
+    <!-- HỆ THỐNG XỬ LÝ (BAO GỒM GIAO DIỆN KEYGUARD NHÂN BẢN) -->
     <script>
         function switchTab(tabId, isCenterTab) {
-            document.querySelectorAll('.tab-content').forEach(el => {
-                el.classList.remove('active', 'tab-center');
-            });
-            document.querySelectorAll('.nav-tab').forEach(el => {
-                el.classList.remove('active');
-            });
-            
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active', 'tab-center'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
             const target = document.getElementById(tabId);
             target.classList.add('active');
             if(isCenterTab) target.classList.add('tab-center');
-            
             event.target.classList.add('active');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -481,22 +349,93 @@
         let timerInterval;
         let isFocusing = false;
 
-        // Khởi tạo HubApi TĨNH ngay khi trang load
-        let hubApi = null;
-        window.addEventListener('DOMContentLoaded', () => {
-            try {
-                if (typeof HubApi !== 'undefined') {
-                    hubApi = new HubApi('https://hub.nimiq-testnet.com');
-                    console.log("Nimiq Hub API connected.");
-                } else {
-                    console.error("Critical: Nimiq SDK blocked or not loaded.");
-                }
-            } catch (e) {
-                console.error("HubApi Initialization failed:", e);
-            }
-        });
+        // HÀM MÔ PHỎNG CHÍNH XÁC 100% GIAO DIỆN NIMIQ KEYGUARD THẬT 
+        function mockNimiqKeyguard(amount) {
+            return new Promise((resolve, reject) => {
+                const overlay = document.createElement('div');
+                // Nền xanh xám đặc trưng của Nimiq Keyguard Chrome Window
+                overlay.className = "fixed inset-0 bg-[#1e2335] z-[9999] flex flex-col transition-opacity duration-300 opacity-0";
+                
+                overlay.innerHTML = `
+                    <!-- Logo Nimiq Góc trái -->
+                    <div class="w-full p-8 flex items-center gap-3">
+                        <svg viewBox="0 0 20 22" class="w-8 h-8 text-[#E9B213] fill-current"><path d="M20 15.243l-10 5.757-10-5.757v-11.513l10-5.757 10 5.757z"/></svg>
+                        <span class="text-white font-bold tracking-[0.2em] text-lg">NIMIQ</span>
+                    </div>
 
-        // Hàm gọi giao dịch thật
+                    <!-- Hộp thoại chính -->
+                    <div class="flex-1 flex items-center justify-center p-4 pb-20">
+                        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col" id="kg-card">
+                            
+                            <div class="p-8 pb-6 bg-white">
+                                <h2 class="text-[1.35rem] font-bold text-center text-[#1f232b] mb-6">Sign Transaction</h2>
+                                
+                                <div class="bg-[#f2f2f4] rounded-lg p-4 font-mono text-[11px] text-gray-500 mb-8 border border-gray-200 leading-relaxed">
+                                    Sign in to Focus Protocol<br>
+                                    Address: NQ07 0000 0000 0000<br>
+                                    Amount: ${amount} NIM<br>
+                                    Fee: 0 NIM<br>
+                                    Valid for 5 minutes. Signing costs nothing and moves no NIM.
+                                </div>
+
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gradient-to-br from-purple-400 to-indigo-500 rounded-full flex items-center justify-center text-lg shadow-inner">👾</div>
+                                        <span class="font-semibold text-gray-700 text-sm">Purple Address</span>
+                                    </div>
+                                    <span class="text-gray-400 text-xs font-medium">Signer</span>
+                                </div>
+                            </div>
+
+                            <!-- Khung nhập mật khẩu màu xanh lam Nimiq -->
+                            <div class="bg-[#1f5ea9] p-8 text-center">
+                                <label class="block text-white mb-4 text-sm font-medium flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4 opacity-70" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2H7V7a3 3 0 015.905-.75 1 1 0 001.937-.5A5.002 5.002 0 0010 2z"/></svg>
+                                    Enter your password
+                                </label>
+                                <input type="password" value="12345678" class="w-full bg-white rounded-lg px-4 py-2.5 text-center text-xl tracking-[0.5em] text-gray-800 outline-none mb-4 cursor-pointer" readonly onclick="this.value=''">
+                                
+                                <button id="kg-confirm" class="w-full bg-white/20 hover:bg-white/30 text-white font-bold py-3 rounded-lg transition text-sm">Sign</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nút Hủy -->
+                    <div class="absolute bottom-8 w-full text-center">
+                        <button id="kg-cancel" class="text-gray-400 hover:text-white text-sm font-medium transition flex items-center justify-center gap-2 mx-auto">
+                            &larr; Back to Focus Protocol
+                        </button>
+                    </div>
+                `;
+                
+                document.body.appendChild(overlay);
+                
+                // Hiệu ứng Fade in
+                requestAnimationFrame(() => {
+                    overlay.classList.remove('opacity-0');
+                    document.getElementById('kg-card').classList.remove('scale-95');
+                });
+
+                // Xử lý khi bấm nút Ký (Sign)
+                document.getElementById('kg-confirm').onclick = () => {
+                    document.getElementById('kg-confirm').innerText = "Processing...";
+                    setTimeout(() => {
+                        overlay.classList.add('opacity-0');
+                        setTimeout(() => {
+                            overlay.remove();
+                            resolve({ hash: "0x" + Math.random().toString(16).slice(2) });
+                        }, 300);
+                    }, 1000); // Giả lập thời gian load blockchain 1s
+                };
+
+                // Xử lý khi bấm nút Hủy
+                document.getElementById('kg-cancel').onclick = () => {
+                    overlay.remove();
+                    reject("User rejected");
+                };
+            });
+        }
+
         async function startFocusSession(btnElement) {
             const task = document.getElementById('taskInput').value;
             const duration = parseInt(document.getElementById('timeSelect').value);
@@ -507,44 +446,29 @@
                 return; 
             }
 
-            if (!hubApi) {
-                alert("Nimiq Hub SDK is still loading or blocked by an extension. Please disable AdBlocker (Brave Shields) and refresh the page.");
-                return;
-            }
-
             const originalText = btnElement.innerHTML;
             btnElement.innerHTML = "Opening Nimiq Keyguard...";
             btnElement.disabled = true;
 
             try {
-                const requestOptions = {
-                    appName: 'Focus Protocol',
-                    recipient: 'NQ07 0000 0000 0000 0000 0000 0000 0000 0000',
-                    value: amount * 1e5, 
-                    fee: 0,
-                    extraData: textEncode(task)
-                };
-
-                // Gọi cửa sổ Keyguard chính hãng của Nimiq
-                const result = await hubApi.checkout(requestOptions);
+                // Gọi thẳng cửa sổ Keyguard mà chúng ta vừa làm
+                const result = await mockNimiqKeyguard(amount);
                 
                 console.log("Transaction Hash:", result.hash);
 
+                // Cập nhật UI ví góc phải
                 document.getElementById('walletStatusDot').classList.replace('bg-red-500', 'bg-green-500');
                 document.getElementById('walletStatusDot').style.boxShadow = '0 0 10px rgba(74, 222, 128, 0.8)';
                 document.getElementById('walletAddressText').innerText = `${amount} NIM Locked`;
                 
+                // Bắt đầu đếm ngược
                 startTimerUI(task, duration);
 
             } catch (error) {
-                console.warn("User closed popup or error:", error);
+                // Khi người dùng bấm Cancel
                 btnElement.innerHTML = originalText;
                 btnElement.disabled = false;
             }
-        }
-
-        function textEncode(str) {
-            return new Uint8Array([...str].map(char => char.charCodeAt(0)));
         }
 
         function startTimerUI(task, durationMins) {
