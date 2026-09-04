@@ -484,13 +484,32 @@
         let timerInterval;
         let isFocusing = false;
 
-        // KHỞI TẠO NATIVE NIMIQ HUB API CHUẨN XÁC
-        let hubApi;
-        try {
-            // Trỏ trực tiếp tới endpoint Testnet chính thức của Nimiq
-            hubApi = new HubApi('https://hub.nimiq-testnet.com');
-        } catch (err) {
-            console.error("Failed to initialize Nimiq Hub API", err);
+        // KHỞI TẠO AN TOÀN: Đảm bảo HubApi đã sẵn sàng
+        let hubApi = null;
+        
+        async function initNimiqHub() {
+            if (hubApi) return hubApi;
+            try {
+                if (typeof HubApi !== 'undefined') {
+                    hubApi = new HubApi('https://hub.nimiq-testnet.com');
+                } else {
+                    // Nếu thư viện chưa load kịp, tự động nạp động (dynamic load)
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = 'https://hub.nimiq-testnet.com/build/hub-api.js';
+                        script.onload = () => {
+                            hubApi = new HubApi('https://hub.nimiq-testnet.com');
+                            resolve();
+                        };
+                        script.onerror = reject;
+                        document.head.appendChild(script);
+                    });
+                }
+                return hubApi;
+            } catch (err) {
+                console.error("Failed to initialize HubApi:", err);
+                return null;
+            }
         }
 
         async function startFocusSession() {
@@ -503,31 +522,34 @@
                 return; 
             }
 
-            if (!hubApi) {
-                alert("Nimiq Hub API not loaded.");
+            const startBtn = event.currentTarget;
+            const originalText = startBtn.innerHTML;
+            startBtn.innerHTML = "Connecting to Nimiq...";
+            startBtn.disabled = true;
+
+            // Đảm bảo API được tải xong trước khi gọi
+            const api = await initNimiqHub();
+            if (!api) {
+                alert("Could not connect to Nimiq Network. Please check your network or ad-blocker.");
+                startBtn.innerHTML = originalText;
+                startBtn.disabled = false;
                 return;
             }
 
             try {
-                const startBtn = event.currentTarget;
-                startBtn.innerHTML = "Opening Nimiq Keyguard...";
-                startBtn.disabled = true;
-
-                // GỌI HÀM CHECKOUT CHUẨN CỦA NIMIQ HUB (Sẽ bật ra Keyguard thật)
                 const requestOptions = {
                     appName: 'Focus Protocol',
                     recipient: 'NQ07 0000 0000 0000 0000 0000 0000 0000 0000',
-                    value: amount * 1e5, // Đổi sang đơn vị Luna
+                    value: amount * 1e5, 
                     fee: 0,
                     extraData: textEncode(task)
                 };
 
-                // Lệnh này sẽ gọi trực tiếp cửa sổ Keyguard y hệt như reef.nimiq.cafe
-                const result = await hubApi.checkout(requestOptions);
+                // Gọi cửa sổ Keyguard thật từ Nimiq
+                const result = await api.checkout(requestOptions);
                 
                 console.log("Transaction successful, hash:", result.hash);
 
-                // Cập nhật UI ví đã khóa tiền
                 document.getElementById('walletStatusDot').classList.replace('bg-red-500', 'bg-green-500');
                 document.getElementById('walletStatusDot').style.boxShadow = '0 0 10px rgba(74, 222, 128, 0.8)';
                 document.getElementById('walletAddressText').innerText = `${amount} NIM Locked`;
@@ -536,74 +558,13 @@
 
             } catch (error) {
                 console.warn("User closed popup or error:", error);
-                const btn = document.querySelector('button[onclick="startFocusSession()"]');
-                btn.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> Stake Collateral & Start`;
-                btn.disabled = false;
+                startBtn.innerHTML = originalText;
+                startBtn.disabled = false;
             }
         }
 
-        // Hỗ trợ mã hóa chuỗi thông điệp sang bytes cho Nimiq
         function textEncode(str) {
             return new Uint8Array([...str].map(char => char.charCodeAt(0)));
         }
-
-        function startTimerUI(task, durationMins) {
-            document.getElementById('setupSection').classList.add('hidden');
-            const timerSec = document.getElementById('timerSection');
-            timerSec.classList.remove('hidden');
-            timerSec.classList.add('flex');
-            
-            document.getElementById('currentTask').innerText = task;
-            isFocusing = true;
-            timeLeft = durationMins * 60;
-            updateTimerDisplay();
-
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                updateTimerDisplay();
-                if (timeLeft <= 0) winSession();
-            }, 1000);
-        }
-
-        function updateTimerDisplay() {
-            const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            const s = (timeLeft % 60).toString().padStart(2, '0');
-            document.getElementById('timerDisplay').innerText = `${m}:${s}`;
-        }
-
-        function winSession() {
-            clearInterval(timerInterval); 
-            isFocusing = false;
-            showResult("🎉 Session Complete! Funds unlocked.", "border-green-500 text-green-400");
-        }
-
-        function giveUp() {
-            if(!confirm("Are you sure? You will lose your NIM stake.")) return;
-            loseSession("Forfeited. Funds liquidated.");
-        }
-
-        function loseSession(reason) {
-            clearInterval(timerInterval); 
-            isFocusing = false;
-            showResult(reason, "border-red-500 text-red-400");
-        }
-
-        function showResult(text, colorClasses) {
-            document.getElementById('timerSection').classList.add('hidden');
-            document.getElementById('timerSection').classList.remove('flex');
-            
-            const resultBox = document.getElementById('resultMessage');
-            resultBox.className = `mt-8 p-8 rounded-2xl text-center font-bold text-xl border bg-black/60 ${colorClasses}`;
-            resultBox.innerText = text;
-            resultBox.classList.remove('hidden');
-            setTimeout(() => location.reload(), 4000);
-        }
-
-        document.addEventListener("visibilitychange", () => {
-            if (document.visibilityState === "hidden" && isFocusing) {
-                loseSession("⚠️ CHEATING DETECTED. Funds liquidated.");
-            }
-        });
-    </script>
 </body>
 </html>
